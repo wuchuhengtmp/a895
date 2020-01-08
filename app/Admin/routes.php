@@ -12,4 +12,9 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('admin.home');
 
+    $router->resource('users', UsersController::class);
+    $router->resource('setting/slides', SlideController::class);
+    $router->resource('setting/configs', ConfigController::class);
+
+    $router->resource('goods', GoodsController::class);
 });

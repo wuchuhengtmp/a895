@@ -8,10 +8,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value is the name of laravel-admin, This setting is displayed on the
-    | login page.
     |
+    | login page.
     */
-    'name' => 'Laravel-admin',
+    'name' => env('APP_NAME') . '管理系统',
 
     /*
     |--------------------------------------------------------------------------
@@ -396,6 +396,46 @@ return [
     |
     */
     'extensions' => [
+        'latlong' => [
+            // Whether to enable this extension, defaults to true
+            'enable' => true,
 
+            // Specify the default provider
+            'default' => 'google',
+
+            // According to the selected provider above, fill in the corresponding api_key
+            'providers' => [
+
+                'google' => [
+                    'api_key' => '',
+                ],
+
+                'yadex' => [
+                    'api_key' => '',
+                ],
+
+                'amap' => [
+                    'api_key' => env('AMAP_KEY'),
+                ],
+            ]
+        ],
+	'simditor' => [
+	    'enable' => true,
+	    'config' => [
+		'upload' => [
+		    'url' => '/admin/api/upload', 
+		    'fileKey' => 'upload_file',
+		    'connectionCount' => 3,
+		    'leaveConfirm' => 'Uploading is in progress, are you sure to leave this page?'
+		],
+		'tabIndent' => true,
+		'toolbar' => ['title', 'bold', 'italic', 'underline', 'strikethrough', 'fontScale', 'color', '|', 'ol', 'ul', 'blockquote', 'code', 'table', '|', 'link', 'image', 'hr', '|', 'indent', 'outdent', 'alignment'],
+		'toolbarFloat' => true,
+		'toolbarFloatOffset' => 0,
+		'toolbarHidden' => false,
+		'pasteImage' => true,
+		'cleanPaste' => false,
+	    ]
+	]
     ],
 ];
