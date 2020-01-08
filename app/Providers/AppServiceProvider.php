@@ -4,6 +4,12 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use App\Exceptions\Api\{
+    Base as BaseException,
+    SystemErrorException
+};
+use Illuminate\Support\Facades\Log;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -13,7 +19,46 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        \API::error(function (\Exception $E){
+                // 内部异常
+            if ($E instanceof SystemErrorException) {
+                $Request = request();
+                $error_info = [
+                    'line'      => $E->getLine(),
+                    'file_name' => $E->getFile(),
+                    'error_msg' => $E->msg,
+                    'url'       => $Request->url(),
+                    'method'    => $Request->method(),
+                    'params'    => $Request->input()
+                ];
+                Log::channel('systemlog')->info($error_info);
+                if (env('APP_DEBUG')) {
+                    return response()->json([
+                        'msg'      => $E->msg,
+                        'code' => $E->code
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'msg' => '系统内部错误',
+                        'code' => $E->code
+                    ], 200);
+                }
+
+            } else if ($E instanceof BaseException) {
+                // 常规异常 
+                return response()->json([
+                    'msg'      => $E->msg,
+                    'code' => $E->code
+                ], 200);
+            }
+            // 限流异常
+            if ($E instanceof \Dingo\Api\Exception\RateLimitExceededException) {
+                return response()->json([
+                    'msg'      => '请不要频繁访问',
+                    'code'     => 404
+                ], 200);
+            }
+        });
     }
 
     /**

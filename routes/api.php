@@ -13,6 +13,23 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+$api = app('Dingo\Api\Routing\Router');
+
+$api->version('v1', [
+    'namespace' => 'App\Http\Controllers\Api'
+], function($api) {
+    $api->group([
+        'middleware' => 'api.throttle',
+        'limit'      => 1,
+        'expires'    => 1,
+    ], function($api) {
+        // 注册短信验证码
+        $api->post('verificationCodes', 'VerificationCodesController@store');
+        $api->post('resetPasswordCodes', 'VerificationCodesController@passwordStore');
+    });
+
+    $api->post('users', 'UsersController@store');
+    $api->put('users/password', 'UsersController@updatePassword');
 });
+
+

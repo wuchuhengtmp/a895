@@ -16,6 +16,7 @@ use Encore\Admin\Layout\{
 };
 use Encore\Admin\Widgets;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class ConfigController extends Controller
 {
@@ -34,6 +35,10 @@ class ConfigController extends Controller
         $form->text('amap_key', __('amap_key'))->default(get_config('amap_key'));
         $tab->add('地图配置', $form);
 
+        $form = new Widgets\Form();
+        $form->method('post');
+        $form->image('DEFAULT_AVATOR', __('DEFAULT_AVATOR'))->move('public/upload/image1/');
+        $tab->add('用户配置', $form);
         $content->row($tab);
 
         return $content;
@@ -65,5 +70,16 @@ class ConfigController extends Controller
         $form = new Widgets\Form();
         $form->method('get');
         return $form;
+    }
+
+    /**
+     * 保存
+     *
+     */
+    public function store()
+    {
+        $is_save = request()->file('DEFAULT_AVATOR')->store('admin');
+        dd($is_save);
+        echo asset($is_save); exit;
     }
 }

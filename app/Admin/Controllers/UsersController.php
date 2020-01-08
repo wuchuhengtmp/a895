@@ -7,6 +7,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Storage;
 
 class UsersController extends AdminController
 {
@@ -31,7 +32,8 @@ class UsersController extends AdminController
         $grid->column('nickname', __('Nickname'));
         $grid->column('avatar', __('Avatar'))
         ->display(function() {
-            return "<img src='" . $this->avatar . "'/>";
+            $url = Storage::disk('admin')->url($this->avatar);
+            return "<img src='" . $url . "' style='width:50px'/>";
         });
         $grid->column('phone', __('Phone'));
         $grid->column('credit', __('Credit'));
@@ -76,16 +78,16 @@ class UsersController extends AdminController
     {
         $form = new Form(new User());
 
-        $form->text('name', __('Name'));
-        $form->email('email', __('Email'));
-        $form->datetime('email_verified_at', __('Email verified at'))->default(date('Y-m-d H:i:s'));
-        $form->password('password', __('Password'));
-        $form->number('is_admin', __('Is admin'));
-        $form->image('avatar', __('Avatar'));
         $form->text('nickname', __('Nickname'));
+        $form->password('password', __('Password'));
+        $form->image('avatar', __('Avatar'));
         $form->number('credit', __('Credit'));
-        $form->mobile('phone', __('Phone'));
-
+        $form->mobile('phone', __('Phone')); 
+        $form->saving(function (Form $form) {
+            if (bcrypt($form->password) !== $form->model()->password) {
+                $form->password = bcrypt($form->password);
+            }
+        });
         return $form;
     }
 }

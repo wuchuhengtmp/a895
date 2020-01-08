@@ -89,6 +89,11 @@ return [
             'driver' => 'errorlog',
             'level' => 'debug',
         ],
+
+        'systemlog' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/systemError.log'),
+        ],
     ],
 
 ];
