@@ -26,4 +26,12 @@ class Controller extends BaseController
             'code' => 200
         ]);
     }
+
+    public function responseFail($msg = 'fail'): object
+    {
+        return response()->json([
+            'msg' => $msg,
+            'code' => 401
+        ]);
+    }
 }

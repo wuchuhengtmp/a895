@@ -261,6 +261,8 @@
     "amap_key"  :  "地图key",
     "Thumb" : " 首图",
     "Tags" : "标签",
-    "DEFAULT_AVATOR" : "默认头像"
+    "DEFAULT_AVATOR" : "默认头像",
+    "Integral" : "积分",
+    "Notice" : "说明"
  }
 

@@ -58,6 +58,13 @@ class AppServiceProvider extends ServiceProvider
                     'code'     => 404
                 ], 200);
             }
+            // token 异常
+            if ($E instanceof \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException) {
+                return response()->json([
+                    'msg'      => '无效请求头部或者无效token,请检查请求的token',
+                    'code'     => 401
+                ], 200);
+            }
         });
     }
 

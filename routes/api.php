@@ -28,8 +28,16 @@ $api->version('v1', [
         $api->post('resetPasswordCodes', 'VerificationCodesController@passwordStore');
     });
 
+    $api->post('authorizations', 'AuthorizationsController@store');
+
     $api->post('users', 'UsersController@store');
     $api->put('users/password', 'UsersController@updatePassword');
-});
 
+       // 需要 token 验证的接口
+    $api->group(['middleware' => 'api.auth'], function($api) {
+        $api->get('signes', 'SignesController@index');
+        $api->post('signes', 'SignesController@store');
+    });
+
+});
 

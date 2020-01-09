@@ -17,5 +17,6 @@ Route::group([
     $router->resource('setting/configs', ConfigController::class);
 
     $router->resource('goods', GoodsController::class);
-    $router->resource('config/user', UserConfigController::class);
+    $router->resource('configes/user', UserConfigController::class);
+    $router->resource('configes/sign', SignConfigController::class);
 });
