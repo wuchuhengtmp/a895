@@ -32,12 +32,14 @@ $api->version('v1', [
 
     $api->post('users', 'UsersController@store');
     $api->put('users/password', 'UsersController@updatePassword');
+    $api->get('index', 'IndexController@index');
 
        // 需要 token 验证的接口
     $api->group(['middleware' => 'api.auth'], function($api) {
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store');
     });
+    
 
 });
 
