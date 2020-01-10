@@ -19,4 +19,5 @@ Route::group([
     $router->resource('goods', GoodsController::class);
     $router->resource('configes/user', UserConfigController::class);
     $router->resource('configes/sign', SignConfigController::class);
+    $router->resource('articles', ArticlesController::class);
 });

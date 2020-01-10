@@ -18,4 +18,5 @@
  *
  */
 
-Encore\Admin\Form::forget(['map', 'editor']);
+Encore\Admin\Form::forget(['map', 'editor', 'ckeditor', 'maps']);
+Encore\Admin\Form::extend('chunk_file', \Encore\ChunkFileUpload\ChunkFileField::class);

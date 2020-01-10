@@ -263,6 +263,10 @@
     "Tags" : "标签",
     "DEFAULT_AVATOR" : "默认头像",
     "Integral" : "积分",
-    "Notice" : "说明"
+    "Notice" : "说明",
+    "Thumb type" : "首图类型",
+    "Thumb url" : "首图",
+    "Thumb video url" : "视频文件",
+    "Clickers" : "点击量"
  }
 

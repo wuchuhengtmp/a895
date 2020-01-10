@@ -34,6 +34,11 @@ $api->version('v1', [
     $api->put('users/password', 'UsersController@updatePassword');
     $api->get('index', 'IndexController@index');
 
+    $api->get('articles/categores', 'ArticleController@categoresIndex');
+    $api->get('articles', 'ArticleController@index');
+    $api->get('articles/categores/{category}', 'ArticleController@categoryIndex');
+    $api->get('articles/{article}', 'ArticleController@show');
+
        // 需要 token 验证的接口
     $api->group(['middleware' => 'api.auth'], function($api) {
         $api->get('signes', 'SignesController@index');
