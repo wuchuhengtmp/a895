@@ -43,8 +43,9 @@ $api->version('v1', [
     $api->group(['middleware' => 'api.auth'], function($api) {
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store');
+        // 查
+        $api->get('users/me', 'UsersController@meShow');
     });
-    
 
 });
 

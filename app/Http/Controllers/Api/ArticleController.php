@@ -95,6 +95,8 @@ class ArticleController extends Controller
         } else if ($Article->thumb_type === 'video')  {
             $Article->thumb_video_url = Storage::disk('admin')->url($Article->thumb_video_url);
         }
+        $Articles->clickes += 1;
+        $Articles->save();
         return $this->responseSuccessData([
             'title'           => $Article->title,
             'content'         => $Article->content,
