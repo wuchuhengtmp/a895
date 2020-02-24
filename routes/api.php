@@ -62,7 +62,6 @@ $api->version('v1', [
         $api->put('cases/{id}/favorite', 'CasesController@favorite');
         $api->delete('cases/{id}/favorite', 'CasesController@destroyFavorite');
         $api->post('cases/{id}/comments', 'CasesController@saveComment');
-        $api->post('cases/orders', 'CaseOrderController@save');
 
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store');
@@ -109,5 +108,10 @@ $api->version('v1', [
     });
 
     $api->get('cases/{id}/comments', 'CasesController@contentIndex');
+    $api->post('cases/orders', 'CaseOrderController@save');
+
+    // 第三方登录
+    $api->post('socials/{social_type}/authorizations', 
+        'AuthorizationsController@socialStore');
 });
 

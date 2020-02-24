@@ -185,11 +185,10 @@
     "Category id" : "车型",
     "Price" : "价格",
     "Preferential" : "优惠",
-    "User id" : "门店",
     "Id": "ID",
     "Category" : "车型",
     "Brand" : "品牌", 
-    "User id": "门店",
+    "User id": "用户",
     "thumb_first_id" : "首图",
     "thumb_1": "轮播图1",
     "thumb_2": "轮播图2",
@@ -289,7 +288,14 @@
     "room" : "室内",
     "toilet" : "卫生间",
     "kitchen":  "厨房",
-    "parlour": "客厅"
-
+    "parlour": "客厅",
+    "Pay type" : "支付方式",
+    "City code": "城市",
+    "Room" : "户型",
+    "Prepay price": "预约金",
+    "WX_APPID":"微信appid",
+    "WX_APPSECRET":"微信app secret",
+    "WX_PAY_KEY":"微信支付key",
+    "WX_MCH_ID": "商户ID"
  }
 

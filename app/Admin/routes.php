@@ -27,6 +27,8 @@ Route::group([
 
     $router->resource('cases/designer', DesignerController::class);
     $router->resource('cases/all', CasesController::class);
+    $router->resource('cases/orders', CaseOrderController::class);
 
     $router->resource('calculates', CalculateController::class);
+    $router->resource('configes/pay', PayConfigController::class);
 });

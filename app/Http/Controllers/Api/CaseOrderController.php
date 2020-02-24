@@ -22,7 +22,8 @@ class CaseOrderController extends Controller
             'phone'     => $Request->input('phone'),
             'name'      => $Request->input('name'),
             'pay_type'  => $Request->input('pay_type'),
-            'user_id'   => $this->user()->id
+            /* 'user_id'   => $this->user()->id */
+            'user_id'   => 12
         ];
         $trade = (new  CaseOrderService())->generateOrder($case_data);
         return $this->responseSuccessData($trade);

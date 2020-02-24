@@ -15,7 +15,7 @@ class CaseOrderController extends AdminController
      *
      * @var string
      */
-    protected $title = 'App\Model\CaseOrder';
+    protected $title = '案例订单';
 
     /**
      * Make a grid builder.
@@ -27,21 +27,43 @@ class CaseOrderController extends AdminController
         $grid = new Grid(new CaseOrder());
 
         $grid->column('id', __('Id'));
-        $grid->column('user_id', __('User id'));
-        $grid->column('case_id', __('Case id'));
-        $grid->column('case_info', __('Case info'));
+        $grid->column('user.nickname', __('User id'));
         $grid->column('prepay_price', __('Prepay price'));
         $grid->column('area', __('Area'));
         $grid->column('room', __('Room'));
-        $grid->column('city_code', __('City code'));
+        $grid->column('city.name', __('City code'));
         $grid->column('phone', __('Phone'));
-        $grid->column('name', __('Name'));
-        $grid->column('status', __('Status'));
-        $grid->column('pay_type', __('Pay type'));
+        $grid->column('name', "联系人");
+        $grid->column('status')
+            ->display(function($field) {
+                switch($field) {
+                case 0 :
+                 return    "未支付 ";
+                case 1 :
+                    return "支付 ";
+                }
+            })
+            ->label([
+                0 => 'warning',
+                1 => 'default',
+                2 => 'success',
+                3 => 'info',
+            ]);
+        $grid->column('pay_type', __('Pay type'))
+            ->display(function($field) {
+                switch($field) {
+                case 'wechat' :
+                 return    "微信";
+                case 'alipay' :
+                    return "支付宝";
+                }
+            })
+            ->label([
+                'wechat' => 'success',
+                'alipay' => 'info',
+            ]);
         $grid->column('out_trade_no', __('Out trade no'));
-        $grid->column('prepay_id', __('Prepay id'));
         $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
 
         return $grid;
     }

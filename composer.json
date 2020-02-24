@@ -24,6 +24,7 @@
         "overtrue/easy-sms": "^1.1",
         "overtrue/laravel-filesystem-qiniu": "^1.0",
         "overtrue/laravel-wechat": "^5.0",
+        "socialiteproviders/weixin": "^4.0",
         "tymon/jwt-auth": "1.0.0-rc.4.1",
         "yansongda/pay": "^2.9",
         "yurunsoft/pay-sdk": "~2.0",

@@ -23,5 +23,15 @@ class CaseOrder extends Model
         'out_trade_no',
         'prepay_id'
     ];
-    
+
+    public function city()
+    {
+        return $this->hasOne(ChinaArea::class, 'code', 'city_code');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
 }
+

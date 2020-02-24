@@ -34,4 +34,10 @@ return [
         'secret' => env('SPARKPOST_SECRET'),
     ],
 
+    'weixin' => [
+        'client_id' => 'wxaf95849eab1f779d',
+        'client_secret' => '34dd7ce219c5c568b7d7a129e86ab54b',
+        /* 'redirect' => env('WEIXIN_REDIRECT_URI'), */  
+    ],  
+
 ];

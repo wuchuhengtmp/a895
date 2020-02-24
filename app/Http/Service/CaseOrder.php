@@ -61,9 +61,9 @@ class  CaseOrder extends Base
         if ($case_data['pay_type'] === 'wechat') {
             $config = [
                 // 必要配置
-                'app_id'             => 'wx31ee998171d7690e',
-                'mch_id'             => '1574187311',
-                'key'                => 'a86895a86895a86895a86895a86895a8',   // API 密钥
+                'app_id'             => get_config('WX_APPID'),
+                'mch_id'             => get_config('WX_MCH_ID'),
+                'key'                => get_config('WX_PAY_KEY'),   // API 密钥
 
                 // 如需使用敏感接口（如退款、发送红包等）需要配置 API 证书路径(登录商户平台下载 API 证书)
                 'cert_path'          => 'path/to/your/cert.pem', // XXX: 绝对路径！！！！
@@ -83,6 +83,7 @@ class  CaseOrder extends Base
             // ... :xxx alipay
         }
         $CaseOrderModel->save();
+        $result['package'] = 'Sign=WXPay';
         return $result;
     }
 
