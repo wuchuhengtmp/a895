@@ -133,13 +133,4 @@ class User extends Base
         }
     }
 
-    /*
-     *  获取用户信息
-     *
-     */
-    public function getUserById(int $user_id): array
-    {
-        $User = UserModel::where('id', $user_id)->first();
-        return $User->toArray();
-    }
 }

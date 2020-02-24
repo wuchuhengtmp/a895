@@ -29,9 +29,19 @@ class IndexController extends Controller
             'list'  => $Slides->toArray(),
             'total' => $Slides->count()
         ];
+        // 分享
+        $share_url = get_config('share_url');
+        $user_credit = get_config('user_credit');
+        $get_credit = get_config('get_credit');
+        $share = [
+            'share_url' => $share_url,
+            'user_credit' => $user_credit,
+            'get_credit' => $get_credit,
+        ];
         return $this->responseSuccessData([
             'notice'  => $notice,
-            'slides' => $slides
+            'slides' => $slides,
+            'share' => $share
         ]);
     }
 }

@@ -13,7 +13,9 @@
         "dingo/api": "^2.4",
         "encore/laravel-admin": "^1.7",
         "fideloper/proxy": "^4.0",
+        "guzzlehttp/guzzle": "^6.5",
         "jxlwqq/simditor": "^1.0",
+        "laravel-admin-ext/china-distpicker": "^1.4",
         "laravel-admin-ext/ckeditor": "^1.0",
         "laravel-admin-ext/latlong": "^1.2",
         "laravel-admin-ext/wang-editor": "^1.2",
@@ -21,7 +23,11 @@
         "laravel/tinker": "^1.0",
         "overtrue/easy-sms": "^1.1",
         "overtrue/laravel-filesystem-qiniu": "^1.0",
-        "tymon/jwt-auth": "1.0.0-rc.4.1"
+        "overtrue/laravel-wechat": "^5.0",
+        "tymon/jwt-auth": "1.0.0-rc.4.1",
+        "yansongda/pay": "^2.9",
+        "yurunsoft/pay-sdk": "~2.0",
+        "yurunsoft/yurun-lock": "dev-master"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

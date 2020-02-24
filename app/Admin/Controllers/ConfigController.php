@@ -39,6 +39,7 @@ class ConfigController extends Controller
         $form->method('post');
         $form->image('DEFAULT_AVATOR', __('DEFAULT_AVATOR'))->move('public/upload/image1/');
         $tab->add('用户配置', $form);
+
         $content->row($tab);
 
         return $content;

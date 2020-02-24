@@ -7,6 +7,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Storage;
 
 class DesignerController extends AdminController
 {
@@ -15,7 +16,7 @@ class DesignerController extends AdminController
      *
      * @var string
      */
-    protected $title = 'App\Model\Designer';
+    protected $title = '设计师';
 
     /**
      * Make a grid builder.
@@ -30,9 +31,10 @@ class DesignerController extends AdminController
         $grid->column('name', __('Name'));
         $grid->column('longitude', __('Longitude'));
         $grid->column('latitude', __('Latitude'));
-        $grid->column('avatar', __('Avatar'));
+        $grid->column('avatar', __('Avatar'))->display(function(){
+            return "<img src='" . Storage::disk('admin')->url($this->avatar) . "' style='width:50px'/>";
+        });
         $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
 
         return $grid;
     }
@@ -68,8 +70,6 @@ class DesignerController extends AdminController
         $form = new Form(new Designer());
 
         $form->text('name', __('Name'));
-        $form->decimal('longitude', __('Longitude'));
-        $form->decimal('latitude', __('Latitude'));
         $form->image('avatar', __('Avatar'));
 
         return $form;

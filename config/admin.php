@@ -401,7 +401,7 @@ return [
             'enable' => true,
 
             // Specify the default provider
-            'default' => 'google',
+            'default' => 'amap',
 
             // According to the selected provider above, fill in the corresponding api_key
             'providers' => [
@@ -436,6 +436,10 @@ return [
 		'pasteImage' => true,
 		'cleanPaste' => false,
 	    ]
-	]
+        ],
+        'china-distpicker' => [
+            // 如果要关掉这个扩展，设置为false
+            'enable' => true,
+        ]
     ],
 ];

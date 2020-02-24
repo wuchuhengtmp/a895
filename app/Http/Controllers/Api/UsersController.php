@@ -12,7 +12,8 @@ use App\Http\Service\{
     User as UserService
 };
 use App\Http\Validate\{
-    CheckUserExists
+    CheckUserExists,
+    CheckLocationParams
 };
 
 class UsersController extends Controller
@@ -41,14 +42,19 @@ class UsersController extends Controller
     }
 
     /**
-     * 用户信息
+     * 座标信息
      *
      */
-    public function meShow()
+    public function location(Request $Request)
     {
-        (new CheckUserExists())->gocheck();
-        $userinfo = (new UserService())->getUserById($this->user()->id);
-        return $this->responseSuccessData($userinfo);
+        (new CheckLocationParams())->gocheck();
+	$location_info = get_location($Request->input('longitude'), $Request->input('latitude'));
+	return $this->responseSuccessData([
+            'city'              => $location_info['regeocode']['addressComponent']['city'],
+            'province'          => $location_info['regeocode']['addressComponent']['province'],
+            'code'              => $location_info['regeocode']['addressComponent']['adcode'],
+            'formatted_address' => $location_info['regeocode']['formatted_address']
+	]);
     }
 
     /**

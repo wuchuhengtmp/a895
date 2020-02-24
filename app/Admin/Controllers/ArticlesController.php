@@ -21,6 +21,8 @@ class ArticlesController extends AdminController
      */
     protected $title = '新闻资讯';
 
+    protected $is_store = false;
+
     /**
      * Make a grid builder.
      *
@@ -98,8 +100,16 @@ class ArticlesController extends AdminController
             ->options(['image' => '图片', 'video' => '视频'])
             ->default('image')
             ->rules('required');
-        $form->image('thumb_url', __('Thumb url'));
-        $form->file('thumb_video_url', __('Thumb video url'))->uniqueName();
+        if ($this->is_store) {
+            if (request()->thumb_type === 'image') {
+                $form->image('thumb_url', __('thumb_url'))->uniqueName()->rules('required');
+            } else if (request()->thumb_type === 'video') {
+                $form->file('thumb_video_url', __('Thumb video url'))->uniqueName()->rules('required');
+            }
+        } else {
+            $form->image('thumb_url', __('thumb_url'))->uniqueName();
+            $form->file('thumb_video_url', __('Thumb video url'))->uniqueName();
+        }
         $form->saved(function (Form $form) {
             if ($form->model()->thumb_type === 'video') {
                 $disk = Storage::disk('qiniu');
@@ -111,5 +121,11 @@ class ArticlesController extends AdminController
             }
        });
         return $form;
+    }
+
+    public function store()
+    {
+        $this->is_store = true;
+        return $this->form()->store();
     }
 }

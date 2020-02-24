@@ -13,3 +13,5 @@ yarn-error.log
 tags
 app/Http/Controllers/TestController.php
 /test.php
+/.phpcd
+

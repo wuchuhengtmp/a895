@@ -70,6 +70,12 @@ return [
             'visibility' => 'public',
             'url' => env('APP_URL').'/uploads',
         ],
+        'img' => [
+            'driver' => 'local',
+            'root' => public_path('uploads').'/images',
+            'visibility' => 'public',
+            'url' => env('APP_URL').'/uploads',
+        ],
         'qiniu' => [
             'driver'     => 'qiniu',
             'access_key' => env('QINIU_ACCESS_KEY'),
