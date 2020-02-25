@@ -8,6 +8,10 @@ class CaseOrder extends Model
 {
     protected $table = 'case_orders';
 
+    protected $appends = [
+        'title'
+    ];
+
     protected $fillable = [
         'user_id',
         'case_id',
@@ -21,7 +25,9 @@ class CaseOrder extends Model
         'status',
         'pay_type',
         'out_trade_no',
-        'prepay_id'
+        'prepay_id',
+        'balance',
+        'stage'
     ];
 
     public function city()
@@ -33,5 +39,14 @@ class CaseOrder extends Model
     {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
+
+    /**
+     * 项目title
+     */
+    public function getTitleAttribute()
+    {
+        $title = json_decode($this->case_info, true)['title'];
+        return $title;
+    } 
 }
 

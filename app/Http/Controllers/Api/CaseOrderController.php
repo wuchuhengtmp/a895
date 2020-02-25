@@ -4,7 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Validate\CheckCaseOrder;
-use App\Http\Service\CaseOrder as CaseOrderService;
+use App\Exceptions\Api\Base as BaseException;
+use Illuminate\Support\Facades\Validator;
+use App\Model\CaseOrder;
+use App\Http\Service\{
+    CaseOrder as CaseOrderService
+};
 
 class CaseOrderController extends Controller
 {
@@ -13,7 +18,7 @@ class CaseOrderController extends Controller
      */
     public function save(Request $Request)
     {
-        (new CheckCaseOrder())->gocheck();
+        (new CheckCaseOrder())->scene('create_order')->gocheck();
         $case_data = [
             'case_id'   => $Request->input('case_id'),
             'room'      => $Request->input('room'),
@@ -28,4 +33,26 @@ class CaseOrderController extends Controller
         $trade = (new  CaseOrderService())->generateOrder($case_data);
         return $this->responseSuccessData($trade);
     }
+
+    /**
+     *  订单详情
+     *
+     */
+    public function show(Request $Request, CaseOrder $CaseOrderModel)
+    {
+        (new CheckCaseOrder())->scene('get_order')->gocheck();
+        $order_info = (new CaseOrderService())->getOrderById($Request->id);
+        return $this->responseSuccessData($order_info);
+    }
+
+    /**
+     *  提交申请
+     *
+     */
+    public function update(Request $Request, CaseOrder $CaseOrder)
+    {
+        (new CheckCaseMustBeExists())->gocheck();
+        $CaseOrder = $CaseOrder->where('id', $Request->id)->first();
+    }
+
 }

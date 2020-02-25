@@ -56,6 +56,4 @@ class PayController extends Controller
         (new PayOperationService())->aliPayNotify();
         return $this->responseSuccess();
     }
-
-
 }

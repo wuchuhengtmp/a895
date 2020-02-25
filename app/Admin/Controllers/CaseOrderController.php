@@ -7,6 +7,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Admin\Actions\CaseOrder\Doing;
 
 class CaseOrderController extends AdminController
 {
@@ -25,8 +26,22 @@ class CaseOrderController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new CaseOrder());
+        $grid->model()->where('status', '>', 0);
 
+        $grid->disableCreateButton();
+        $grid->actions(function ($actions) {
+            $actions->disableEdit();
+            $actions->disableView();
+            if (!in_array($actions->row->status, [3])) {
+                $actions->disableDelete();
+            }
+            if ($actions->row->status === 2) {
+                $actions->add(new Doing);
+            }
+        });
         $grid->column('id', __('Id'));
+        $grid->column('out_trade_no', __('Out trade no'));
+        $grid->column('title', __('Case'));
         $grid->column('user.nickname', __('User id'));
         $grid->column('prepay_price', __('Prepay price'));
         $grid->column('area', __('Area'));
@@ -37,10 +52,24 @@ class CaseOrderController extends AdminController
         $grid->column('status')
             ->display(function($field) {
                 switch($field) {
-                case 0 :
-                 return    "未支付 ";
-                case 1 :
-                    return "支付 ";
+                case 100 :
+                    return "已预约";
+                case 200:
+                    return '已申请';
+                case 201: 
+                    return '申请中';
+                case 202:
+                    return '申请失败';
+                case 300: 
+                    return '已完成';
+                case 301:
+                    return '支付中';
+                case 302:
+                    return '支付失败';
+                case 303:
+                    return '逾期';
+                case 400: 
+                    return '已评论';
                 }
             })
             ->label([
@@ -62,7 +91,6 @@ class CaseOrderController extends AdminController
                 'wechat' => 'success',
                 'alipay' => 'info',
             ]);
-        $grid->column('out_trade_no', __('Out trade no'));
         $grid->column('created_at', __('Created at'));
 
         return $grid;

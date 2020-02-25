@@ -5,6 +5,7 @@ namespace App\Http\Service;
 use EasyWeChat\Factory;
 use App\Model\CaseOrder as CaseOrderModel;
 use App\Model\Cases as CasesModel;
+use Illuminate\Support\Facades\Storage;
 
 class  CaseOrder extends Base
 {
@@ -84,6 +85,7 @@ class  CaseOrder extends Base
         }
         $CaseOrderModel->save();
         $result['package'] = 'Sign=WXPay';
+        $result['timstamp'] = time();
         return $result;
     }
 
@@ -101,4 +103,27 @@ class  CaseOrder extends Base
         
         return $pay->success()->send();// laravel 框架中请直接 `return $pay->success()`
     }
+
+    /**
+     * 订单详情
+     *
+     */
+    public function getOrderById($id) : array
+    {
+        $CaseOrder = (new CaseOrderModel())->where('id', $id)
+            ->first();
+        
+        $disk = Storage::disk('img');
+        $Case = json_decode($CaseOrder->case_info);
+        $thumb_url = $disk->url($Case->thumb_url);
+            return [
+            'id'           => $CaseOrder->id,
+            'title'        => $CaseOrder->title,
+            'out_trade_no' => $CaseOrder->out_trade_no,
+            'thumb_url'    => $thumb_url,
+            'status'       => $CaseOrder->status,
+            'created_at'   => $CaseOrder->created_at->format("Y-m-d H:i:s"),
+        ];
+    }
+
 }

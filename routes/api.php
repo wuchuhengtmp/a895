@@ -62,9 +62,11 @@ $api->version('v1', [
         $api->put('cases/{id}/favorite', 'CasesController@favorite');
         $api->delete('cases/{id}/favorite', 'CasesController@destroyFavorite');
         $api->post('cases/{id}/comments', 'CasesController@saveComment');
+        $api->get('cases/orders/{id}', 'CaseOrderController@show');
+        $api->put('cases/orders/{id}/application', 'CaseOrderController@update');
 
         $api->get('signes', 'SignesController@index');
-        $api->post('signes', 'SignesController@store');
+        $api->post('signes', 'SignesController@store') ;
 
         // 配置
         $api->get('about_us/categores', 'MeConfigController@aboutUs');
@@ -104,7 +106,6 @@ $api->version('v1', [
         $api->post('evaluate_good', 'MeOrderController@evaluateGood');
         $api->get('order_logistics/{id}', 'MeOrderController@orderLogistics');
         $api->get('order_info/{id}', 'MeOrderController@orderInfo');
-
     });
 
     $api->get('cases/{id}/comments', 'CasesController@contentIndex');

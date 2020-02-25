@@ -289,13 +289,15 @@
     "toilet" : "卫生间",
     "kitchen":  "厨房",
     "parlour": "客厅",
-    "Pay type" : "支付方式",
+    "Pay type" : "预约支付方式",
     "City code": "城市",
     "Room" : "户型",
     "Prepay price": "预约金",
     "WX_APPID":"微信appid",
     "WX_APPSECRET":"微信app secret",
     "WX_PAY_KEY":"微信支付key",
-    "WX_MCH_ID": "商户ID"
+    "WX_MCH_ID": "商户ID",
+    "PAY_ACCOUNT": "平台收款账号 ",
+    "Case" : "项目"
  }
 

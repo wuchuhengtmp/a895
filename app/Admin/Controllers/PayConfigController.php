@@ -38,6 +38,10 @@ class PayConfigController extends Controller
         $form->text('amap_key', __('amap_key'))->default(get_config('amap_key'));
         $tab->add('支付宝', $form);
 
+        $form = $this->formTrait();
+        $form->text('PAY_ACCOUNT', __('PAY_ACCOUNT'))->default(get_config('PAY_ACCOUNT'));
+        $tab->add('平台收款账号', $form);
+
         $content->row($tab);
 
         return $content;
