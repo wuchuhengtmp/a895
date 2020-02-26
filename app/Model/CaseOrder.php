@@ -27,7 +27,9 @@ class CaseOrder extends Model
         'out_trade_no',
         'prepay_id',
         'balance',
-        'stage'
+        'times',
+        'app_pay_type',
+        'compact_url'
     ];
 
     public function city()

@@ -15,7 +15,6 @@ use App\Model\{
 
 class CheckCaseOrder extends Base
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -56,6 +55,21 @@ class CheckCaseOrder extends Base
             'required',
             'exists:case_orders,id'
         ],
+        'app_pay_type' => [
+            'required',
+            'in:total,installment',
+        ],
+        'installment' => [
+            'required'
+        ],
+        'times' => [
+            'required_if:app_pay_type,installment',
+            'int',
+            'gt:1'
+        ],
+        'compact_url' => [
+            'required'
+        ]
     ];
 
     /**
@@ -74,6 +88,33 @@ class CheckCaseOrder extends Base
     }
 
     /**
+     * 验证场景验证扩展
+     */
+    public function sceneExtendRules (): array
+    {
+        return [
+            'verify_application' => [
+                'id' => function($attribute, $value, $fail) {
+                    $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+                    if (!$Order) return $fail('没有这个订单');
+                    if (!in_array($Order->status, [100, 202])) {
+                        $messages = [
+                            201 => '您正在申请中,请忽重复申请',
+                            200 => '您已经申请成功了,请不要重复申请',
+                            300 => '您已经申请成功了,请不要重复申请',
+                            301 => '您已经申请成功了,请不要重复申请',
+                            302 => '您已经申请成功了,请不要重复申请',
+                            303 => '您已经申请成功了,请不要重复申请',
+                            400 => '您已经申请成功了,请不要重复申请',
+                        ];
+                        return $fail($messages[$Order->status]);
+                    }
+                }
+            ]
+        ];
+    }
+
+    /**
      * 错误消息
      *
      */
@@ -87,9 +128,14 @@ class CheckCaseOrder extends Base
         'phone.required'     => '手机不能为空',
         'phone.regex'        => '手机格式不正确',
         'name.required'      => '用户名不能为空',
-        'pay_type.required' => '支付方式不能为空',
-        'pay_type.in' => '支付方式请选择wechat 或 alipay',
-        'id.exists' =>  '没有这个订单'
+        'pay_type.required'  => '支付方式不能为空',
+        'pay_type.in'        => '支付方式请选择wechat 或 alipay',
+        'id.exists'          => '没有这个订单',
+        'app_pay_type.required' => '支付方式不能为空',
+        'app_pay_type.in' => '支付方式为total或者installment',
+        'compact_url.required' => '合同图片不能为空',
+        'times.required_if' => '分期不能为空',
+        'times.gt' => '分期不能小于1',
     ];
 
     /**
@@ -110,6 +156,13 @@ class CheckCaseOrder extends Base
         // 订单详情
         'get_order' => [
             'id'
+        ],
+        // 提交合约审核
+        'verify_application'  => [
+            'id',
+            'app_pay_type',
+            'compact_url',
+            'times'
         ]
     ];
 }

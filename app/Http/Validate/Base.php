@@ -79,7 +79,26 @@ class Base
         if (count($result_rules) > 0) {
             $this->rules = $result_rules;
         }
+        // 载入指定场景下字段的附加验证规则
+        $scenes = $this->sceneExtendRules();
+        if (array_key_exists($crene_name, $scenes) &&  count($scenes[$crene_name]) > 0) {
+            foreach($scenes[$crene_name] as $field => $rule) {
+                if(array_key_exists($field, $this->rules)) {
+                    $this->rules[$field] = $rule;
+                }
+            }
+            
+        }
         return $this;
+    }
+
+    /**
+     * 场景附加验证
+     *
+     */
+    public function sceneExtendRules() : array
+    {
+        return [];
     }
 
     /**
@@ -90,6 +109,7 @@ class Base
     {
         return []; 
     }
+
 
     /**
      * 用户

@@ -14,4 +14,4 @@ tags
 app/Http/Controllers/TestController.php
 /test.php
 /.phpcd
-
+public/uploads/

@@ -40,7 +40,7 @@ class CaseOrderController extends Controller
      */
     public function show(Request $Request, CaseOrder $CaseOrderModel)
     {
-        (new CheckCaseOrder())->scene('get_order')->gocheck();
+        (new checkcaseorder())->scene('get_order')->gocheck();
         $order_info = (new CaseOrderService())->getOrderById($Request->id);
         return $this->responseSuccessData($order_info);
     }
@@ -51,8 +51,15 @@ class CaseOrderController extends Controller
      */
     public function update(Request $Request, CaseOrder $CaseOrder)
     {
-        (new CheckCaseMustBeExists())->gocheck();
+        (new checkcaseorder())->scene('verify_application')->gocheck();
         $CaseOrder = $CaseOrder->where('id', $Request->id)->first();
+        $CaseOrder->status = 201;
+        $CaseOrder->app_pay_type = $Request->app_pay_type;
+        $CaseOrder->compact_url  = $Request->compact_url;
+        if ($Request->has('times')) {
+            $CaseOrder->times= $Request->times;
+        }
+        return $CaseOrder->save() ? $this->responseSuccess() : $this->responseFail();
     }
-
+    
 }
