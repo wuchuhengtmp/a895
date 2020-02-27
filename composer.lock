@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "caouecs/laravel-lang",
-            "version": "4.0.8",
+            "version": "4.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/caouecs/Laravel-lang.git",
-                "reference": "b508ae398fc1a8453a6877229e57460dd07ecfa2"
+                "reference": "99b43723eff9a454c1c7e7124e5b1fa560a97c81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/caouecs/Laravel-lang/zipball/b508ae398fc1a8453a6877229e57460dd07ecfa2",
-                "reference": "b508ae398fc1a8453a6877229e57460dd07ecfa2",
+                "url": "https://api.github.com/repos/caouecs/Laravel-lang/zipball/99b43723eff9a454c1c7e7124e5b1fa560a97c81",
+                "reference": "99b43723eff9a454c1c7e7124e5b1fa560a97c81",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -56,7 +56,7 @@
                 "laravel",
                 "lpm"
             ],
-            "time": "2019-12-19T09:38:31+00:00"
+            "time": "2020-02-02T13:13:33+00:00"
         },
         {
             "name": "dingo/api",

@@ -33,8 +33,8 @@ class ComfirnPay extends RowAction
             }
             $model->caseOrder->save();
         }
-        if ($model->save()) {
             return $this->response()->success('操作成功')->refresh();
+        if ($model->save()) {
         } else {
             return $this->response()->error('操作失败')->refresh();
         }
@@ -53,6 +53,4 @@ class ComfirnPay extends RowAction
                 'required_if' => '申请失败的原因不能为空',
             ]);
     }
-
-
 }

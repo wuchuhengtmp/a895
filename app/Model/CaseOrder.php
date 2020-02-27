@@ -150,5 +150,10 @@ class CaseOrder extends Model
             return $status; 
         }
     }
+
+    public  function  comment()
+    {
+        return $this->hasOne(CaseOrderComment::class, 'order_id', 'id');
+    }
 }
 

@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Validate\CheckCaseOrder;
 use App\Exceptions\Api\Base as BaseException;
 use Illuminate\Support\Facades\Validator;
-use App\Model\CaseOrder;
+use App\Model\{
+    CaseOrder,
+    CaseOrderComment as CaseOrderCommentModel
+};
 use App\Http\Service\{
     CaseOrder as CaseOrderService
 };
+use Illuminate\Support\Facades\DB;
 
 class CaseOrderController extends Controller
 {
@@ -75,5 +79,38 @@ class CaseOrderController extends Controller
             'image2' => $Request->image2
         ]);
         return $is_success ? $this->responseSuccess() : $this->responseFail();
+    }
+
+    /**
+     * 保存评论
+     *
+     */
+    public function saveComment(
+        Request $Request,
+        CheckCaseOrder $CheckCaseOrder,
+        CaseOrderCommentModel $CaseOrderCommentModel,
+        CaseOrder $CaseOrderModel
+    )
+    {
+        $CheckCaseOrder->scene('save_comment')->gocheck();
+        $CaseOrderCommentModel->order_id       = $Request->id;
+        $CaseOrderCommentModel->business_stars = $Request->business_stars;
+        $CaseOrderCommentModel->service_stars  = $Request->service_stars;
+        $CaseOrderCommentModel->design_stars   = $Request->design_stars;
+        $CaseOrderCommentModel->material_stars = $Request->material_stars;
+        $CaseOrderCommentModel->content        = $Request->content;
+        $CaseOrderCommentModel->img            = $Request->img;
+        $CaseOrder = $CaseOrderModel->where('id', $Request->id)->first(); 
+        $CaseOrder->status = 400;
+        DB::beginTransaction();
+        try{
+            $CaseOrderCommentModel->save();
+            $CaseOrder->save();
+            DB::commit();
+            return $this->responseSuccess(); 
+        } catch(\Exception $E) {
+            DB::rollBack();
+            return $this->responseFail();
+        }
     }
 }

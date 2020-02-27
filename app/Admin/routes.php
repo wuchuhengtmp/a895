@@ -33,4 +33,6 @@ Route::group([
     $router->resource('configes/pay', PayConfigController::class);
 
     $router->resource('cases/pay-times', PayTimesController::class);
+
+    $router->resource('case-orders-comments', CaseOrderCommentController::class);
 });

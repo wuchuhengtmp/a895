@@ -75,6 +75,25 @@ class CheckCaseOrder extends Base
         ],
         'image2'  => [
             'required_without:image1'
+        ],
+        'business_stars' => [
+            'required',
+            'in:1,2,3,4,5'
+        ],
+        'service_stars' => [
+            'required',
+            'in:1,2,3,4,5'
+        ],
+        'design_stars' => [
+            'required',
+            'in:1,2,3,4,5'
+        ],
+        'material_stars' => [
+            'required',
+            'in:1,2,3,4,5'
+        ],
+        'content' => [
+            'required'
         ]
     ];
 
@@ -140,6 +159,22 @@ class CheckCaseOrder extends Base
                         return $fail($messages[$Order->status]);
                     }
                 }
+            ],
+            'save_comment' => [
+                'id' => function($attribute, $value, $fail) {
+                    $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+
+                    if ($Order->status === 400 ) {
+                        return $fail('订单已评论');
+                    }
+                    if ($Order->status !== 300 ) {
+                        return $fail('订单未完成');
+                    }
+
+                    if ($Order->comment) {
+                        return $fail('订单已评论');
+                    }
+                }
             ]
         ];
     }
@@ -168,6 +203,15 @@ class CheckCaseOrder extends Base
         'times.gt' => '分期不能小于1',
         'image1.required_without' => '请上传至少一张图片',
         'image2.required_without' => '请上传至少一张图片',
+        'business_stars.required' => '工程分不能为空',
+        'business_stars.in' => '工程分为1-5',
+        'service_stars.required' => '服务分不能为空',
+        'service_stars.in' => '工程分为1-5',
+        'design_stars.required' => '设计分不能为空',
+        'design_stars.in' => '设计分为1-5',
+        'material_stars.required' => '材料分不能为空',
+        'material_stars.in' => '材料分为1-5',
+        'content.required' => '内容就能为空',
     ];
 
     /**
@@ -201,6 +245,14 @@ class CheckCaseOrder extends Base
             'id',
             'image1',
             'image2'
+        ],
+        'save_comment' => [
+            'id',
+            'business_stars',
+            'service_stars',
+            'design_stars',
+            'material_stars',
+            'content',
         ]
     ];
 }

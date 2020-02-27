@@ -67,6 +67,7 @@ $api->version('v1', [
         $api->get('cases/orders/{order_id}/pay_times', 'PaytimesController@index');
         $api->post('cases/orders/{order_id}/pay_times/{id}/pay', 'PaytimesController@update');
         $api->post('cases/orders/{id}/pay', 'CaseOrderController@pay');
+        $api->put('cases/orders/{id}/comment', 'CaseOrderController@saveComment');
 
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store') ;

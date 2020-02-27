@@ -118,6 +118,12 @@ class CaseOrderController extends AdminController
             $url = Storage::disk('img')->url($field);
             return $url;
         })->lightbox();
+        $grid->column('comment', __('Comments detail'))->display(function() {
+            if ($this->status !== 400) {
+                return '暂无详情';
+            }
+            return "<a href='/admin/case-orders-comments?order_id=".$this->id."'>评论详情</a>";
+        });
 
         $grid->column('created_at', __('Created at'));
 
