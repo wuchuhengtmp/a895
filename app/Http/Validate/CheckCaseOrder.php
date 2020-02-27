@@ -69,6 +69,12 @@ class CheckCaseOrder extends Base
         ],
         'compact_url' => [
             'required'
+        ],
+        'image1'  => [
+            'required_without:image2'
+        ],
+        'image2'  => [
+            'required_without:image1'
         ]
     ];
 
@@ -96,6 +102,9 @@ class CheckCaseOrder extends Base
             'verify_application' => [
                 'id' => function($attribute, $value, $fail) {
                     $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+                    if ($Order->status === 0) {
+                       return $fail('订单失效'); 
+                    }
                     if (!$Order) return $fail('没有这个订单');
                     if (!in_array($Order->status, [100, 202])) {
                         $messages = [
@@ -107,10 +116,31 @@ class CheckCaseOrder extends Base
                             303 => '您已经申请成功了,请不要重复申请',
                             400 => '您已经申请成功了,请不要重复申请',
                         ];
+                        
                         return $fail($messages[$Order->status]);
                     }
                 }
             ],
+            'pay' => [
+                'id' => function($attribute, $value, $fail) {
+                    $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+                    if (!$Order) return $fail('没有这个订单');
+                    if ($Order->app_pay_type !== 'total') return $fail('这不是全款订单, 不能申请全款支付');
+                    if (!in_array($Order->status, [200, 302, 303])) {
+                        $messages = [
+                            100 => '您还未提交合约，不能支付',
+                            201 => '合约审查中，不能支付',
+                            202 => '合约审查失败，不能支付',
+
+                            300 => '您已支付成功了,请不要再次支付',
+                            301 => '您正在支付中,请不要再来次支付',
+                            400 => '订单已经支付完成，无需再次支付',
+                        ];
+                        
+                        return $fail($messages[$Order->status]);
+                    }
+                }
+            ]
         ];
     }
 
@@ -136,6 +166,8 @@ class CheckCaseOrder extends Base
         'compact_url.required' => '合同图片不能为空',
         'times.required_if' => '分期不能为空',
         'times.gt' => '分期不能小于1',
+        'image1.required_without' => '请上传至少一张图片',
+        'image2.required_without' => '请上传至少一张图片',
     ];
 
     /**
@@ -164,5 +196,11 @@ class CheckCaseOrder extends Base
             'compact_url',
             'times'
         ],
+        // 支付申请
+        'pay' => [
+            'id',
+            'image1',
+            'image2'
+        ]
     ];
 }

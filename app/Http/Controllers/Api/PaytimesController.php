@@ -37,7 +37,7 @@ class PaytimesController extends Controller
      * 
      * @http patch
      */
-    public function update(Request $Request, PayTimesModel $PayTimesModel, PayTimesService $PayTimesService)
+    public function update(Request $Request, PayTimesService $PayTimesService)
     {
         (new CheckPayTimes())->scene('application')->gocheck();
         $PayTimesModel->where('id', $Request->id)->first();

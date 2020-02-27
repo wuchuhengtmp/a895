@@ -66,7 +66,7 @@ class CheckPayTimes extends Base
                         case 100:
                             return $fail('分期已支付');
                         case 101;
-                            return $fail('支付中');
+                            return $fail('您已经提交支付申请，审核期间请忽重复提交');
                     }
                 }
             ]

@@ -7,6 +7,9 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Admin\Actions\PayTimes\{
+    ComfirnPay
+};
 
 class PayTimesController extends AdminController
 {
@@ -15,7 +18,7 @@ class PayTimesController extends AdminController
      *
      * @var string
      */
-    protected $title = '分期申请';
+    protected $title = '支付申请';
 
     /**
      * Make a grid builder.
@@ -25,12 +28,15 @@ class PayTimesController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PayTimes());
+        if (request()->order_id) {
+            $grid->model()->where('order_id', request()->order_id);
+        }
         $grid->actions(function ($actions) {
             $actions->disableEdit();
             $actions->disableView();
             $actions->disableDelete();
-            if ($actions->row->status === 201) {
-
+            if ($actions->row->status === 101) {
+                $actions->add(new ComfirnPay);
             }
         });
 
@@ -60,6 +66,7 @@ class PayTimesController extends AdminController
         ]);
         $grid->column('pay_at', __('Pay at'));
         $grid->column('reply', __('Reply'));
+        $grid->column('images', __('Evidence'))->gallery(['height' =>50]);
         $grid->column('created_at', __('Created at'));
 
         return $grid;

@@ -63,14 +63,17 @@ class CaseOrderController extends Controller
     }
 
     /**
-     * 分期表
+     * 订单支付(全款)
      *
      */
-    public function payTimesIndex(Request $Request, CaseOrderService $CaseOrderService)
+    public function pay(Request $Request, CheckCaseOrder $CheckCaseOrder, CaseOrderService $CaseOrderService)
     {
-        (new Checkcaseorder())->scene('get_pay_times_list')->gocheck();
-        $pay_times_list = $CaseOrderService->getPayTimesById($Request->id);
-        return $this->responseSuccessData($pay_times_list);
+        $CheckCaseOrder->scene('pay')->gocheck();
+        $is_success = $CaseOrderService->recordTotallPay([
+            'id' => $Request->id,
+            'image1' =>  $Request->image1,
+            'image2' => $Request->image2
+        ]);
+        return $is_success ? $this->responseSuccess() : $this->responseFail();
     }
-
 }

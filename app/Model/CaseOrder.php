@@ -58,7 +58,7 @@ class CaseOrder extends Model
      */
     public function getPayTimeDetailAttribute()
     {
-        if ($this->app_pay_type === 'totall') {
+        if ($this->app_pay_type === 'total') {
             return '全款支付';
         } else {
             $count = $this->payTimes->count();

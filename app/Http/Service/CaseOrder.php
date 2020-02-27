@@ -6,8 +6,10 @@ use App\Model\{
     CaseOrder as CaseOrderModel,
     PayTimes as PayTimesModel
 };
+use Illuminate\Support\Facades\DB;
 use App\Model\Cases as CasesModel;
 use Illuminate\Support\Facades\Storage;
+use App\Exceptions\Api\Base as BaseException;
 
 class  CaseOrder extends Base
 {
@@ -143,5 +145,39 @@ class  CaseOrder extends Base
             ->makeHidden(['created_at', 'updated_at', 'order_id']);
         return $PayTimes->toArray();
         
+    }
+
+    /**
+     * 登记全款支付申请
+     */
+    public function recordTotallPay($case_info)
+    {
+        $images = array_filter([$case_info['image1'], $case_info['image2']]);
+        $images = json_encode($images);
+        $CaseOrder = (new CaseOrderModel())->where('id', $case_info['id'])->first();
+        $CaseOrder->status = 301;
+        $pay_limit_at = $CaseOrder->created_at->timestamp + get_config('PAY_LIMIT_AT') * 60 * 60 * 24;
+        if ($CaseOrder->payTimes->isEmpty()) {
+            $PayTimes = new PayTimesModel();
+        } else {
+            $PayTimes = $CaseOrder->PayTimes->first();
+        }
+        $PayTimes->order_id = $CaseOrder->id;
+        $PayTimes->status = 101;
+        $PayTimes->total_price = $CaseOrder->balance;
+        $PayTimes->images = $images;
+        $PayTimes->pay_at = date("Y-m-d H:i:s", $pay_limit_at);
+        $PayTimes->save();
+
+        DB::beginTransaction();
+        try{
+            $CaseOrder->save();
+            $PayTimes->save();
+            DB::commit();
+            return true;
+        } catch(\Exception $E) {
+            DB::rollBack();
+            return false;
+        }
     }
 }
