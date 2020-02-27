@@ -84,7 +84,7 @@ class Base
         if (array_key_exists($crene_name, $scenes) &&  count($scenes[$crene_name]) > 0) {
             foreach($scenes[$crene_name] as $field => $rule) {
                 if(array_key_exists($field, $this->rules)) {
-                    $this->rules[$field] = $rule;
+                    $this->rules[$field][] = $rule;
                 }
             }
             

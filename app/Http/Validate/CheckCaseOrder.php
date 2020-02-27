@@ -110,7 +110,7 @@ class CheckCaseOrder extends Base
                         return $fail($messages[$Order->status]);
                     }
                 }
-            ]
+            ],
         ];
     }
 
@@ -163,6 +163,6 @@ class CheckCaseOrder extends Base
             'app_pay_type',
             'compact_url',
             'times'
-        ]
+        ],
     ];
 }

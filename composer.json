@@ -17,6 +17,7 @@
         "jxlwqq/simditor": "^1.0",
         "laravel-admin-ext/china-distpicker": "^1.4",
         "laravel-admin-ext/ckeditor": "^1.0",
+        "laravel-admin-ext/grid-lightbox": "^1.0",
         "laravel-admin-ext/latlong": "^1.2",
         "laravel-admin-ext/wang-editor": "^1.2",
         "laravel/framework": "5.8.*",

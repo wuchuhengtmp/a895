@@ -40,7 +40,7 @@ class CaseOrderController extends Controller
      */
     public function show(Request $Request, CaseOrder $CaseOrderModel)
     {
-        (new checkcaseorder())->scene('get_order')->gocheck();
+        (new Checkcaseorder())->scene('get_order')->gocheck();
         $order_info = (new CaseOrderService())->getOrderById($Request->id);
         return $this->responseSuccessData($order_info);
     }
@@ -51,7 +51,7 @@ class CaseOrderController extends Controller
      */
     public function update(Request $Request, CaseOrder $CaseOrder)
     {
-        (new checkcaseorder())->scene('verify_application')->gocheck();
+        (new Checkcaseorder())->scene('verify_application')->gocheck();
         $CaseOrder = $CaseOrder->where('id', $Request->id)->first();
         $CaseOrder->status = 201;
         $CaseOrder->app_pay_type = $Request->app_pay_type;
@@ -61,5 +61,16 @@ class CaseOrderController extends Controller
         }
         return $CaseOrder->save() ? $this->responseSuccess() : $this->responseFail();
     }
-    
+
+    /**
+     * 分期表
+     *
+     */
+    public function payTimesIndex(Request $Request, CaseOrderService $CaseOrderService)
+    {
+        (new Checkcaseorder())->scene('get_pay_times_list')->gocheck();
+        $pay_times_list = $CaseOrderService->getPayTimesById($Request->id);
+        return $this->responseSuccessData($pay_times_list);
+    }
+
 }

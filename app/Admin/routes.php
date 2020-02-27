@@ -31,4 +31,6 @@ Route::group([
 
     $router->resource('calculates', CalculateController::class);
     $router->resource('configes/pay', PayConfigController::class);
+
+    $router->resource('cases/pay-times', PayTimesController::class);
 });

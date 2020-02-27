@@ -232,7 +232,7 @@
     "preferential" : "优惠",
     "Bank card" : "银行卡号",
     "Bank" : "银行",
-    "Balance" : "余额",
+    "Balance" : "尾款",
     "sms_uid":"UID",
     "sms_account":"短信账号",
     "sms_pwd": "短信密码",
@@ -298,6 +298,14 @@
     "WX_PAY_KEY":"微信支付key",
     "WX_MCH_ID": "商户ID",
     "PAY_ACCOUNT": "平台收款账号 ",
-    "Case" : "项目"
+    "Case" : "项目",
+    "PAY_DAY" : "统一分期日期",
+    "APP_PAY_TYPE" : "支付方式",
+    "PAY_TIME_DETAIL" : "期数/已还/支付中/待还/逾期",
+    "TIMES" : "分期",
+    "Compact Url" : " 合约",
+    "Pay at": "期限",
+    "Reply" : "回复",
+    "Order Id" : "订单Id"
  }
 

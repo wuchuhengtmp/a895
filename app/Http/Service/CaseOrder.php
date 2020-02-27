@@ -1,9 +1,11 @@
 <?php
-
 namespace App\Http\Service;
 
 use EasyWeChat\Factory;
-use App\Model\CaseOrder as CaseOrderModel;
+use App\Model\{
+    CaseOrder as CaseOrderModel,
+    PayTimes as PayTimesModel
+};
 use App\Model\Cases as CasesModel;
 use Illuminate\Support\Facades\Storage;
 
@@ -122,8 +124,24 @@ class  CaseOrder extends Base
             'out_trade_no' => $CaseOrder->out_trade_no,
             'thumb_url'    => $thumb_url,
             'status'       => $CaseOrder->status,
+            'reply'        => $CaseOrder->reply,
+            'app_pay_type' => $CaseOrder->app_pay_type,
+            'pay_account'      => get_config('PAY_ACCOUNT'),
             'created_at'   => $CaseOrder->created_at->format("Y-m-d H:i:s"),
         ];
+
     }
 
+    /**
+     * 分期表
+     *
+     */
+    public function getPayTimesById($order_id)
+    {
+        $PayTimes = (new PayTimesModel())->where('order_id', $order_id)
+            ->get()
+            ->makeHidden(['created_at', 'updated_at', 'order_id']);
+        return $PayTimes->toArray();
+        
+    }
 }

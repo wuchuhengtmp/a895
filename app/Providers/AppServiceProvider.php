@@ -9,6 +9,10 @@ use App\Exceptions\Api\{
     SystemErrorException
 };
 use Illuminate\Support\Facades\Log;
+use App\Http\Service\{
+    CaseOrder  as CaseOrderService,
+    PayTimes as PayTimesService
+};
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -66,6 +70,9 @@ class AppServiceProvider extends ServiceProvider
                 ], 200);
             }
         });
+        // 契约注册
+        $this->app->bind(CaseOrderService::class, CaseOrderService::class);
+        $this->app->bind(CaseOrderService::class, CaseOrderService::class);
     }
 
     /**

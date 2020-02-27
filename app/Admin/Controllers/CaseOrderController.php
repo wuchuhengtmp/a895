@@ -7,7 +7,12 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
-use App\Admin\Actions\CaseOrder\Doing;
+use App\Admin\Actions\CaseOrder\{
+    Doing,
+    Application
+};
+use Encore\Admin\Widgets\Table;
+use Illuminate\Support\Facades\Storage;
 
 class CaseOrderController extends AdminController
 {
@@ -35,8 +40,8 @@ class CaseOrderController extends AdminController
             if (!in_array($actions->row->status, [3])) {
                 $actions->disableDelete();
             }
-            if ($actions->row->status === 2) {
-                $actions->add(new Doing);
+            if ($actions->row->status === 201) {
+                $actions->add(new Application);
             }
         });
         $grid->column('id', __('Id'));
@@ -91,6 +96,49 @@ class CaseOrderController extends AdminController
                 'wechat' => 'success',
                 'alipay' => 'info',
             ]);
+        $grid->column('app_pay_type', __('APP_PAY_TYPE'))
+            ->display(function($field) {
+                switch($this->app_pay_type) {
+                case 'total' :
+                    return '全款';
+                case 'installment' :
+                    return '分期';
+                }
+            })
+            ->label([
+                'total' => 'warning',
+                'installment' => 'success'
+            ]);
+        $grid->column('balance', __('Balance'));
+        $grid->column('pay_time_detail', __('PAY_TIME_DETAIL'))
+            ->expand(function ($model) {
+                $pay_times = $model->paytimes->makeHidden(['updated_at', 'created_at', 'reply', 'order_id'])->toArray();
+                array_walk($pay_times, function(&$el) {
+                    switch($el['status']) {
+                    case 100:
+                        $el['status'] = '已支付';
+                        break;
+                    case 101:
+                        $el['status'] = '支付中';
+                        break;
+                    case 102:
+                        $el['status'] = '支付失败';
+                        break;
+                    case 103:
+                        $el['status'] = '逾期';
+                        break;
+                    case 104:
+                        $el['status'] = '未支付';
+                        break;
+                    }
+                });
+                return new Table(['ID', '金额', '状态', '期限'], $pay_times);
+            });
+        $grid->column('compact_url', __('Compact Url'))->display(function($field) {
+            $url = Storage::disk('img')->url($field);
+            return $url;
+        })->lightbox();
+
         $grid->column('created_at', __('Created at'));
 
         return $grid;
