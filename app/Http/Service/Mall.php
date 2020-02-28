@@ -3,9 +3,12 @@
 namespace App\Http\Service;
 
 use App\Model\{
-    User as UserModel,
-    Goods as GoodsModel,
-    UserEvaluate as UserEvaluateModel
+    User         as UserModel,
+    Goods        as GoodsModel,
+    UserEvaluate as UserEvaluateModel,
+    GoodsComment as GoodsCommentModel,
+    Order        as OrderModel,
+    Address as AddressModel
 };
 use Illuminate\Support\Facades\DB;
 use App\Exceptions\Api\{
@@ -13,14 +16,13 @@ use App\Exceptions\Api\{
     SystemErrorException
 };
 use App\Http\Logic\{
-    Evaluate as EvaluateLogic,
+    Evaluate      as EvaluateLogic,
     CreaditRecord as CreaditRecordLogic
 };
+use Illuminate\Support\Facades\Storage;
 
 class Mall extends Base
 {
-    //  商城
-
     /*
      *  获取商品列表
      *
@@ -62,5 +64,68 @@ class Mall extends Base
         $info['userEvaluate'] = $userEvaluate;
         return $info->toArray();
     }
+    
+    /**
+     * 获取商品评价
+     *
+     */
+    public function getCommentsById(int $good_id)
+    {
+        $return_data = [
+            'list' => [],
+            'total' => 0
+        ];
+        $Comments = (new GoodsCommentModel())->where('goods_id', $good_id)->paginate(10);
+        if ($Comments->isNotEmpty()) {
+            foreach($Comments as $Comment) {
+                $tmp = [];
+                $tmp['id'] = $Comment->id;
+                $tmp['nickname'] = $Comment->user->nickname;
+                $tmp['avatar'] = Storage::disk('img')->url($Comment->user->avatar);
+                $tmp['img'] = $Comment->img;
+                $tmp['stars'] = $Comment->stars;
+                $tmp['created_at'] = format_time($Comment->created_at->timestamp);
+                $return_data['list'][] = $tmp;
+            }
+            $return_data['total'] = $Comments->total();
+        }
+        return $return_data;
+    }
 
+    /**
+     * 生成订单
+     */
+    public function generateOrder($order_info)
+    {
+        $Order = new OrderModel();
+        $User = (new UserModel())->where('id', $order_info['user_id'])->first();
+        $Order->out_trade_no = date('YmdHis', time()) . rand(0, 9999);
+        $Order->user_id =$User->id;
+        $Order->goods_id = $order_info['goods_id'];
+        $Order->total = $order_info['total'];
+        $Order->pay_type = $order_info['pay_type'];
+        $Addresses = (new AddressModel())->where('id', $order_info['address_id'])
+            ->first();
+        $address_info = $Addresses->toArray();
+        unset($address_info['created_at'], $address_info['updated_at']);
+        $address_info = json_encode($address_info);
+        $Order->address_info = $address_info;
+        $Order->status = 0;
+        $Goods = (new GoodsModel())->where('id', $order_info['goods_id'])
+            ->first();
+        $total_price = number_format(round($Goods->price * $order_info['total'], 2), 2);
+        $Order->total_price = $total_price;
+        $total_credit = $Goods->credit * $order_info['total'];
+        $Order->total_credit = $total_credit;
+        $Order->title = $Goods->title;
+        if ($Order->save()) {
+            $User->credit -= $Order->total_credit;
+            $User->save();
+            return $Order; 
+        } else {
+            throw new BaseException([
+                'msg' => '订单生成失败'
+            ]);
+        }
+    }
 }

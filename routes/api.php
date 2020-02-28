@@ -89,9 +89,9 @@ $api->version('v1', [
         $api->delete('address/{id}', 'MeUserInfoController@receivingAddressDelete');
         
         // 我的收藏
-        $api->get('favorite_cases', 'MeCollectionController@getCollectionList');
-        $api->get('favorite_cases/{id}', 'MeCollectionController@getCollectionInfo');
-        $api->delete('favorite_cases/{id}', 'MeCollectionController@collectionDelete');
+        $api->get('favorite_cases', 'UsersController@getCollectionList');
+        $api->get('favorite_cases/{id}', 'UsersController@getCollectionInfo');
+        $api->delete('favorite_cases/{id}', 'UsersController@collectionDelete');
 
         // 积分
         $api->get('credits', 'MeCreditController@getTaskList');
@@ -100,20 +100,23 @@ $api->version('v1', [
 
         // 商城 
         $api->get('goods', 'MallController@getGoodsList');
-        $api->get('goods/{id}', 'MallController@getGoodsInfo');
-        $api->post('pay/{type}', 'PayController@payAdd');
+        $api->get('goods/{id}', 'MallController@getGoodsInfo')
+            ->where('id', '[0-9]+');
+        $api->post('goods/{id}/orders', 'MallController@addOrder')
+            ->where('id', '[0-9]+');
 
         // 我的订单
-        $api->get('me_orders/{type}', 'MeOrderController@getOrderList');
-        $api->delete('me_orders/{id}', 'MeOrderController@orderDelete');
-        $api->patch('me_orders/{id}', 'MeOrderController@orderConfirm');
-        $api->post('evaluate_good', 'MeOrderController@evaluateGood');
-        $api->get('order_logistics/{id}', 'MeOrderController@orderLogistics');
-        $api->get('order_info/{id}', 'MeOrderController@orderInfo');
+        $api->get('me/address/default', 'UsersController@showDefefaultAddress');
     });
 
     $api->get('cases/{id}/comments', 'CasesController@contentIndex');
     $api->post('cases/orders', 'CaseOrderController@save');
+
+    // 商城幻灯片
+    $api->get('goods/ad', 'MallController@getAd');
+
+    // 商品评论
+    $api->get('goods/{id}/comments', 'MallController@showComments');
 
     // 第三方登录
     $api->post('socials/{social_type}/authorizations', 

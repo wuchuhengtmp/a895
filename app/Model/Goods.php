@@ -9,13 +9,26 @@ class Goods extends Model
     protected $table = 'goods';
 
     protected $fillable = [
-        'title',
+        'out_trade_no',
+        'user_id',
+        'goods_id',
         'total',
-        'tags',
+        'pay_type',
+        'address_info',
+        'pay_at',
         'status',
-        'content',
-        'credit',
-        'price',
-        'thumb'
+        'total_price',
+        'total_credit',
+        'alipay_trade_no',
+        'express_no',
+        'title',
+        'created_at',
+        'prepay_id',
+        'app_pay_sign'
     ];
+
+    public function comments()
+    {
+        return $this->hasMany(GoodsComment::class, 'goods_id', 'id');
+    }
 }

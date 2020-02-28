@@ -122,7 +122,7 @@ class CaseOrderController extends AdminController
             if ($this->status !== 400) {
                 return '暂无详情';
             }
-            return "<a href='/admin/case-orders-comments?order_id=".$this->id."'>评论详情</a>";
+            return "<a href='/admin/case-orders-comments?order+_id=".$this->id."'>评论详情</a>";
         });
 
         $grid->column('created_at', __('Created at'));

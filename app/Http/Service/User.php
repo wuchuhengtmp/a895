@@ -4,7 +4,8 @@ namespace App\Http\Service;
 
 use App\Model\{
     User    as UserModel,
-    SignLog as SignLogModel
+    SignLog as SignLogModel,
+    Address as AddressModel
 };
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -133,4 +134,11 @@ class User extends Base
         }
     }
 
+    /**
+     * 默认地址
+     * 
+     */
+    public function getDefaultAddressByUserId($user_id)
+    {
+    }
 }

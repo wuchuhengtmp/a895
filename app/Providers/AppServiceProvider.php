@@ -11,7 +11,10 @@ use App\Exceptions\Api\{
 use Illuminate\Support\Facades\Log;
 use App\Http\Service\{
     CaseOrder  as CaseOrderService,
-    PayTimes as PayTimesService
+    PayTimes   as PayTimesService,
+    Mall       as MallService,
+    user       as UserService,
+    PayService as PayService
 };
 
 class AppServiceProvider extends ServiceProvider
@@ -73,6 +76,9 @@ class AppServiceProvider extends ServiceProvider
         // 契约注册
         $this->app->bind(CaseOrderService::class, CaseOrderService::class);
         $this->app->bind(CaseOrderService::class, CaseOrderService::class);
+        $this->app->bind(MallService::class, MallService::class);
+        $this->app->bind(UserService::class, UserService::class);
+        $this->app->bind(PayService::class, PayService::class);
     }
 
     /**

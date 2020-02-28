@@ -8,12 +8,16 @@ use App\Http\Validate\{
     CheckPhoneRegister,
     CheckResetPassword 
 };
-use App\Http\Service\{
-    User as UserService
+use App\Model\{
+    Address as AddressModel
 };
 use App\Http\Validate\{
     CheckUserExists,
     CheckLocationParams
+};
+use App\Http\Service\{
+    MeCollection as MeCollectionService,
+    User         as UserService
 };
 
 class UsersController extends Controller
@@ -57,4 +61,60 @@ class UsersController extends Controller
 	]);
     }
 
+    /**
+     * 获取收藏列表
+     *
+     */
+    public function getCollectionList()
+    {
+        (new CheckUserExists())->gocheck();
+        $collectionInfo = (new MeCollectionService())->getCollectionList($this->user()->id);
+        return $collectionInfo ? $this->responseSuccessData($collectionInfo) : $this->responseFail('暂无收藏');
+    }
+
+    /**
+     
+     *
+     */
+    public function getCollectionInfo($id)
+    {
+        (new CheckUserExists())->gocheck();
+        $collectionInfo = (new MeCollectionService())->getCollectionInfo($id);
+        return $this->responseSuccessData($collectionInfo);
+    }
+
+    /**
+     * 删除收藏
+     *
+     */
+    public function collectionDelete($id)
+    {
+        (new CheckUserExists())->gocheck();
+        (new MeCollectionService())->collectionDelete($this->user()->id,$id);
+        return $this->responseSuccess();
+    }
+
+    /**
+     * 用户默认地址
+     *
+     */
+    public function showDefefaultAddress(UserService $UserService, AddressModel $AddressModel)
+    {
+        $Address = $AddressModel->where('user_id', $this->user()->id)
+            ->where('is_default', 1)
+            ->get();
+        if ($Address->isEmpty()) {
+            return $this->responseFail('没有收货地址，请添加');
+        } else {
+            $Address = $Address->first();
+            return $this->responseSuccessData([
+                'id' => $Address->id,
+                'phone' => $Address->phone,
+                'city_code' => $Address->city_code,
+                'city_name' => $Address->city->name,
+                'address' => $Address->address
+            ]);
+            
+        }
+    }
 }

@@ -9,14 +9,14 @@ use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Illuminate\Support\Facades\Storage;
 
-class SlideController extends AdminController
+class StoreSlideController extends AdminController
 {
     /**
      * Title for current resource.
      *
      * @var string
      */
-    protected $title = '幻灯片';
+    protected $title = '商城幻灯片';
 
     /**
      * Make a grid builder.
@@ -26,9 +26,10 @@ class SlideController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Slide());
+        
         $grid->disableCreateButton();
         $grid->model()->orderBy('order_num', 'asc');
-        $grid->model()->where('type', 'index');
+        $grid->model()->where('type', 'store');
         $grid->column('id', __('Id'));
         $grid->column('path', __('Path'))
             ->display(function() { 

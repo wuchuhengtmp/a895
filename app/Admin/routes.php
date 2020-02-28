@@ -35,4 +35,5 @@ Route::group([
     $router->resource('cases/pay-times', PayTimesController::class);
 
     $router->resource('case-orders-comments', CaseOrderCommentController::class);
+    $router->resource('setting/store-slides', StoreSlideController::class);
 });

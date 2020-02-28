@@ -403,3 +403,30 @@ function jsonp_decode($jsonp, $assoc = false)
     return json_decode($jsonp, $assoc);
 }
 
+/**
+* 格式化时间
+*
+*/
+function format_time($time)
+{
+    $timeDiff = time() - $time;
+    $days = intval( $timeDiff / 86400 );
+    $remain = $timeDiff % 86400;
+    $hours = intval( $remain / 3600 );
+    $remain = $remain % 3600;
+    $mins = intval( $remain / 60 );
+    $secs = $remain % 60;
+    $timeInfo = array( "day" => $days, "hour" => $hours, "min" => $mins, "sec" => $secs );
+    if($timeInfo['day'] >= 365){
+        $userEvaluate[$i]['time'] = '1 year ago';
+    }elseif ($timeInfo['day'] > 0){
+        return $timeInfo['day'].' days ago';
+    }elseif ($timeInfo['day'] == 0 && $timeInfo['hour'] > 0){
+        return $timeInfo['hour'].' hours ago';
+    }elseif ($timeInfo['hour'] == 0 && $timeInfo['min'] > 0){
+        return $timeInfo['min'].' minutes ago';
+    }else{
+        return $timeInfo['sec'].' seconds ago';
+    }
+}
+

@@ -11,6 +11,7 @@ class Slide extends Model
     protected $fillable = [
         'url',
         'href',
+        'index',
         'order_num',
     ];
 }
