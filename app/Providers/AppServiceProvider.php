@@ -14,7 +14,8 @@ use App\Http\Service\{
     PayTimes   as PayTimesService,
     Mall       as MallService,
     user       as UserService,
-    PayService as PayService
+    PayService as PayService,
+    Express    as ExpressService
 };
 
 class AppServiceProvider extends ServiceProvider
@@ -79,6 +80,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MallService::class, MallService::class);
         $this->app->bind(UserService::class, UserService::class);
         $this->app->bind(PayService::class, PayService::class);
+        $this->app->bind(ExpressService::class, ExpressService::class);
     }
 
     /**

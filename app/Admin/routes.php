@@ -36,4 +36,6 @@ Route::group([
 
     $router->resource('case-orders-comments', CaseOrderCommentController::class);
     $router->resource('setting/store-slides', StoreSlideController::class);
+
+    $router->resource('orders', OrderController::class);
 });

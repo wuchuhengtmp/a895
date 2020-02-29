@@ -24,5 +24,26 @@ class Order extends Model
         'credit',
         'alipay_trade_no',
         'title',
+        'goods_info',
+        'express_co'
     ];
+
+    protected $appends = [
+        'reciever',
+    ];
+
+    /**
+    * 收货人
+    *
+    */
+    public function getRecieverAttribute()
+    {
+        $User = json_decode($this->address_info);
+        return $User->name;
+    }
+
+    public function goods()
+    {
+        return $this->hasOne(Goods::class, 'id', 'goods_id');
+    }
 }

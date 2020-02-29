@@ -104,6 +104,7 @@ $api->version('v1', [
             ->where('id', '[0-9]+');
         $api->post('goods/{id}/orders', 'MallController@addOrder')
             ->where('id', '[0-9]+');
+        $api->get('goods/orders', 'GoodsOrderController@index');
 
         // 我的订单
         $api->get('me/address/default', 'UsersController@showDefefaultAddress');
@@ -121,5 +122,6 @@ $api->version('v1', [
     // 第三方登录
     $api->post('socials/{social_type}/authorizations', 
         'AuthorizationsController@socialStore');
+    $api->get('test', 'TestController@index');
 });
 

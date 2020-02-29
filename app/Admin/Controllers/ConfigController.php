@@ -35,10 +35,15 @@ class ConfigController extends Controller
         $form->text('amap_key', __('amap_key'))->default(get_config('amap_key'));
         $tab->add('地图配置', $form);
 
-        $form = new Widgets\Form();
-        $form->method('post');
-        $form->image('DEFAULT_AVATOR', __('DEFAULT_AVATOR'))->move('public/upload/image1/');
-        $tab->add('用户配置', $form);
+        $form = $this->formTrait();
+        $form->text('EXPRESS_APP_CODE', __('快递平台APP_CODE码'))->default(get_config('EXPRESS_APP_CODE'));
+        $tab->add('物流配置', $form);
+
+        /* $form = new Widgets\Form(); */
+        /* $form->method('post'); */
+        /* $form->image('DEFAULT_AVATOR', __('DEFAULT_AVATOR'))->move('public/upload/image1/'); */
+        /* $tab->add('用户配置', $form); */
+
 
         $content->row($tab);
 
@@ -77,10 +82,12 @@ class ConfigController extends Controller
      * 保存
      *
      */
-    public function store()
+    public function store($content)
     {
         $is_save = request()->file('DEFAULT_AVATOR')->store('admin');
-        dd($is_save);
-        echo asset($is_save); exit;
+        ob_start();
+        $contents = ob_get_contents();
+        ob_end_clean();
+        $content->row($contents);
     }
 }

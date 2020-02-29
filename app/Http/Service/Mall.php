@@ -104,9 +104,9 @@ class Mall extends Base
         $Order->goods_id = $order_info['goods_id'];
         $Order->total = $order_info['total'];
         $Order->pay_type = $order_info['pay_type'];
-        $Addresses = (new AddressModel())->where('id', $order_info['address_id'])
+        $Addresses = Db::table('address')->where('id', $order_info['address_id'])
             ->first();
-        $address_info = $Addresses->toArray();
+        $address_info = (array)$Addresses;
         unset($address_info['created_at'], $address_info['updated_at']);
         $address_info = json_encode($address_info);
         $Order->address_info = $address_info;
@@ -118,6 +118,8 @@ class Mall extends Base
         $total_credit = $Goods->credit * $order_info['total'];
         $Order->total_credit = $total_credit;
         $Order->title = $Goods->title;
+        unset($Goods->content);
+        $Order->goods_info = json_encode($Goods->toArray());
         if ($Order->save()) {
             $User->credit -= $Order->total_credit;
             $User->save();

@@ -100,4 +100,13 @@ class MallController extends Controller
         }
         return $this->responseSuccessData($app_pay_sign);
     }
+
+    /**
+     * 订单列表
+     *
+     */
+    public function ordersIndex(Request $Request)
+    {
+        (new CheckGoods())->scene('get_orders')->gocheck();
+    }
 }
