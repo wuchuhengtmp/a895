@@ -56,7 +56,7 @@ $api->version('v1', [
     $api->group(['middleware' => 'api.auth'], function($api) {
         $api->get('cases', 'CasesController@index');
         $api->get('cases/city_codes/{city_code}', 'CasesController@searchByCityCode');
-        $api->get('cases/{id}', 'CasesController@show');
+        $api->get('cases/{id}', 'CasesController@show')->where('id', '[0-9]+');
         $api->put('cases/{id}/like', 'CasesController@like');
         $api->delete('cases/{id}/like', 'CasesController@destroyLike');
         $api->put('cases/{id}/favorite', 'CasesController@favorite');
@@ -68,6 +68,8 @@ $api->version('v1', [
         $api->post('cases/orders/{order_id}/pay_times/{id}/pay', 'PaytimesController@update');
         $api->post('cases/orders/{id}/pay', 'CaseOrderController@pay');
         $api->put('cases/orders/{id}/comment', 'CaseOrderController@saveComment');
+        $api->get('cases/orders', 'CaseOrderController@index');
+        $api->delete('cases/orders/{id}', 'CaseOrderController@destroy');
 
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store') ;
@@ -83,10 +85,10 @@ $api->version('v1', [
         $api->get('userinfo', 'MeUserInfoController@getUserInfo');
         $api->patch('avatar', 'MeUserInfoController@avatarUpdate');
         $api->patch('user_nickname', 'MeUserInfoController@nickNameUpdate');
-        $api->get('address', 'MeUserInfoController@receivingAddressList');
-        $api->post('address', 'MeUserInfoController@receivingAddressAdd');
-        $api->patch('address', 'MeUserInfoController@receivingAddressUpdate');
-        $api->delete('address/{id}', 'MeUserInfoController@receivingAddressDelete');
+        $api->get('address', 'UsersController@addressinde');
+        $api->post('address', 'UsersController@addressSave');
+        $api->patch('address/{address_id}', 'UsersController@addressUpdate');
+        $api->delete('address/{address_id}', 'UsersController@addressDestroy');
         
         // 我的收藏
         $api->get('favorite_cases', 'UsersController@getCollectionList');
@@ -105,6 +107,11 @@ $api->version('v1', [
         $api->post('goods/{id}/orders', 'MallController@addOrder')
             ->where('id', '[0-9]+');
         $api->get('goods/orders', 'GoodsOrderController@index');
+        $api->get('goods/orders/{id}/express', 'GoodsOrderController@expressShow');
+        $api->get('goods/orders/{id}', 'GoodsOrderController@show');
+        $api->post('goods/orders/{id}/comment', 'GoodsOrderController@saveComment');
+        $api->delete('goods/orders/{id}', 'GoodsOrderController@destroy')->where('id', '[0-9]+');
+        $api->post('orders/refund/{id}', 'GoodsOrderController@refundSave')->where('id', '[0-9]+');
 
         // 我的订单
         $api->get('me/address/default', 'UsersController@showDefefaultAddress');

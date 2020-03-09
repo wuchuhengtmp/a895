@@ -38,4 +38,5 @@ Route::group([
     $router->resource('setting/store-slides', StoreSlideController::class);
 
     $router->resource('orders', OrderController::class);
+    $router->resource('cases/refund', RefundController::class);
 });

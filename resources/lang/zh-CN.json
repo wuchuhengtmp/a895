@@ -313,6 +313,9 @@
     "Total credit" : "总积分",
     "Express_no" : "订单号",
     "Express_info" : "物流信息",
-    "Express_co" : "快递公司"
+    "Express_co" : "快递公司",
+    "Refund status": "退款状态",
+    "Refund thumb" : "图片",
+    "refund reply" : "回复"
  }
 

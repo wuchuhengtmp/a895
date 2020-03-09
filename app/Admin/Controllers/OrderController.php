@@ -114,7 +114,7 @@ class OrderController extends AdminController
                 if ($this->status > 1) {
                     $Expresses = new Express();
                     try {
-                        $ExpressInfo = $Expresses->getExpressInfoByNo($this->express, $this->express_co);
+                        $ExpressInfo = $Expresses->getExpressInfoByNo($this->express_no, $this->express_co);
                     } catch(\Exception $E) {
                         return '暂无快递信息';
                     }

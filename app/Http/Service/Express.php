@@ -24,11 +24,10 @@ class  Express extends Base
             // You can set any number of default request options.
             'timeout'  => 2.0,
         ]);
+        $query['no'] = $No;
+        if ($type)  $query['type'] = $type;
         $Response = $Client->request('GET', '', [
-            'query' => [
-                'no' => '780098068058',
-                $type !== '' && 'type' => $type
-            ],
+            'query' => $query,
            'headers' => [
                 'Authorization' => 'APPCODE ' . get_config('EXPRESS_APP_CODE')
             ]]

@@ -94,6 +94,10 @@ class CheckCaseOrder extends Base
         ],
         'content' => [
             'required'
+        ],
+        'status' => [
+            'required',
+            'in:doing,finished,feedback'
         ]
     ];
 
@@ -175,6 +179,14 @@ class CheckCaseOrder extends Base
                         return $fail('订单已评论');
                     }
                 }
+            ],
+            'delete_casse_order' => [
+                'id' => function($attribute, $value, $fail) {
+                    $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+                    if (!$Order) {
+                        return $fail('没有这个订单');
+                    }
+                }
             ]
         ];
     }
@@ -212,6 +224,8 @@ class CheckCaseOrder extends Base
         'material_stars.required' => '材料分不能为空',
         'material_stars.in' => '材料分为1-5',
         'content.required' => '内容就能为空',
+        'status.required'  => '请传入订单状态',
+        'status.in' => '订单状态为: doing, finished 或 feedback'
     ];
 
     /**
@@ -253,6 +267,14 @@ class CheckCaseOrder extends Base
             'design_stars',
             'material_stars',
             'content',
+        ],
+        // 案例订单列表
+        'get_casse_orders' => [
+            'status'
+        ],
+        // 删除案例订单
+        'delete_casse_order' => [
+            'id'
         ]
     ];
 }

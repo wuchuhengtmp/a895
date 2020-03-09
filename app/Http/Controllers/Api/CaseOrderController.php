@@ -17,6 +17,42 @@ use Illuminate\Support\Facades\DB;
 
 class CaseOrderController extends Controller
 {
+    public function index(Request $Request, CaseOrder $CaseOrder)
+    {
+        (new CheckCaseOrder())->scene('get_casse_orders')->gocheck();
+        $return_arr = [
+            'list'  => [],
+            'total' => 0
+        ];
+        $status = [];
+        switch($Request->status)
+        {
+            case 'doing':
+                $status = [100, 200, 201, 202, 203, 301, 302, 303];
+                break;
+            case 'finished':
+                $status = [300];
+                break;
+            case 'feedback':
+                $status  = [400];
+                break;
+        }
+        $CaseOrders = $CaseOrder->whereIn('status', $status)->paginate(10);
+        foreach($CaseOrders as $CaseOrder) {
+            $tmp = [];
+            $tmp['id'] = $CaseOrder->id;
+            $Case  = json_decode($CaseOrder->case_info);
+            $tmp['thumb'] = get_absolute_url($Case->thumb_url);
+            $tmp['title'] = $CaseOrder->title;
+            $tmp['prepay_price'] = $CaseOrder->prepay_price;
+            $tmp['balance'] = $CaseOrder->balance;
+            $tmp['status'] = $CaseOrder->status;
+            $return_arr['list'][] = $tmp;
+        }
+        $return_arr['total'] = $CaseOrders->total();
+        return $this->responseSuccessData($return_arr);
+    }
+
     /**
      * 生成项目订单
      */
@@ -110,6 +146,20 @@ class CaseOrderController extends Controller
             return $this->responseSuccess(); 
         } catch(\Exception $E) {
             DB::rollBack();
+            return $this->responseFail();
+        }
+    }
+
+    /**
+     * 删除
+     *
+     */
+    public function destroy(Request $Request, CaseOrder $CaseOrderModel)
+    {
+        (new CheckCaseOrder())->scene('delete_casse_order')->gocheck();
+        if ($CaseOrderModel->where('id', $Request->id)->delete()) {
+            return $this->responseSuccess();
+        } else {
             return $this->responseFail();
         }
     }

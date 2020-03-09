@@ -24,16 +24,16 @@ class ConfirmPost extends RowAction
 
     public function form()
     {
-        $Expresses = (new Express())->select('name', 'type')->get();
+        $expresses = (new express())->select('name', 'type')->get();
         $selectes = [];
-        foreach($Expresses as $el) {
+        foreach($expresses as $el) {
             $selectes[$el->type] = $el->name;
         }
-        $this->text('express_no', __('Express_no'))
+        $this->text('express_no', __('express_no'))
             ->rules('required', [
                 'required' => '请输入订单号'
             ]);
-        $this->select('express_co', __('Express_co'))
+        $this->select('express_co', __('express_co'))
             ->options($selectes) 
             ->rules('required', [
                 'required' => '请选择快递公司'

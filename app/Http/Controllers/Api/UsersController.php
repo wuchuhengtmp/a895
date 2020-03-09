@@ -13,12 +13,14 @@ use App\Model\{
 };
 use App\Http\Validate\{
     CheckUserExists,
-    CheckLocationParams
+    CheckLocationParams,
+    CheckUser
 };
 use App\Http\Service\{
     MeCollection as MeCollectionService,
     User         as UserService
 };
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller
 {
@@ -117,4 +119,87 @@ class UsersController extends Controller
             
         }
     }
+
+    /**
+     * 添加地址
+     *
+     */
+    public function addressSave(Request $Request, AddressModel $AddressModel)
+    {
+        (new CheckUser())->scene('add_address')->gocheck();
+        $AddressModel->name      = $Request->name;
+        $AddressModel->address   = $Request->address;
+        $AddressModel->city_code = $Request->city_code;
+        $AddressModel->phone     = $Request->phone;
+        $AddressModel->user_id   = $this->user()->id;
+        $count_addr = $AddressModel->where('user_id', $this->user()->id)->count();
+        if ($count_addr === 0 ) {
+            $AddressModel->is_default = 1;
+        }
+        if ($AddressModel->save()) {
+            return $this->responseSuccess();
+        } else {
+            return $this->responseFail();
+        }
+    }
+
+    /**
+     * 地址列表
+     *
+     * @http get
+     */
+    public function addressinde(AddressModel $AddressModel)
+    {
+        $return_arr = [
+            'list' => [],
+            'total' => 0
+        ];
+        $Addresses = $AddressModel->where('user_id', $this->user()->id)
+            ->select('id', 'name', 'phone', 'address', 'is_default', 'city_code')
+            ->get();
+        $Addresses->each(function($el) {
+            $el->city_name = $el->city->name;
+            unset($el->city);
+        });
+        return $this->responseSuccessData($Addresses->toArray());
+    }
+
+
+    /**
+     * 部分更新 地址
+     */
+    public function addressUpdate(Request $Request, AddressModel $AddressModel)
+    {
+        (new CheckUser())->scene('patch_address')->gocheck();
+        $Address = $AddressModel->where('id', $Request->address_id)->first();
+        $Request->name      && $Address->name      = $Request->name;
+        $Request->phone     && $Address->phone     = $Request->phone;
+        $Request->city_code && $Address->city_code = $Request->city_code;
+        $Request->address   && $Address->address   = $Request->address;
+        DB::beginTransaction();
+        try{
+            if ($Request->is_default) {
+                $Address->is_default = 1;
+                $AddressModel->where('user_id', $this->user()->id)
+                    ->update(['is_default' => 0]);
+            }
+            $Address->save();
+            DB::commit();
+            return $this->responseSuccess();
+        } catch(\Exception $E) {
+            DB::rollBack();
+            return $this->responseFail();
+        }
+    }
+
+    public function addressDestroy(Request $Request, AddressModel $AddressModel)
+    {
+        (new CheckUser())->scene('del_addr')->gocheck();
+        if ($AddressModel->where('id', $Request->address_id)->delete()) {
+            return $this->responseSuccess();
+        } else {
+            return $this->responseFail();
+        }
+    }
 }
+

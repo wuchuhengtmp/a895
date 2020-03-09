@@ -14,6 +14,9 @@ class GoodsComment extends Model
         'user_id',
         'goods_id',
         'rate',
+        'service_stars',
+        'express_stars',
+        'order_id'
     ];
 
     public function user()

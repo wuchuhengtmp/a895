@@ -3,9 +3,12 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CaseOrder extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'case_orders';
 
     protected $appends = [

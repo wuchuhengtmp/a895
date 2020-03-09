@@ -5,6 +5,7 @@ use App\Model\{
     Calculates
 };
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Storage;
 
 /**
  *  获取自定义配置
@@ -428,5 +429,14 @@ function format_time($time)
     }else{
         return $timeInfo['sec'].' seconds ago';
     }
+}
+
+/**
+ *  相对图片路转换为绝对路径
+ *
+ */
+function get_absolute_url($url)
+{
+    return Storage::disk('img')->url($url);
 }
 

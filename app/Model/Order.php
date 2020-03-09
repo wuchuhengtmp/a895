@@ -25,7 +25,16 @@ class Order extends Model
         'alipay_trade_no',
         'title',
         'goods_info',
-        'express_co'
+        'express_co',
+        'goods_stars',
+        'service_stars',
+        'express_stars',
+        'is_comment',
+        'comment_content',
+        'comment_thumb',
+        'refund_status',
+        'content',
+        'refund_reply',
     ];
 
     protected $appends = [
@@ -46,4 +55,15 @@ class Order extends Model
     {
         return $this->hasOne(Goods::class, 'id', 'goods_id');
     }
+
+    public function express()
+    {
+        return $this->hasOne(Express::class, 'type', 'express_co');
+    }
+
+    public function getRefundThumbAttribute($value)
+    {
+        return  $value ? get_absolute_url($value) : $value;
+    }
+    
 }
