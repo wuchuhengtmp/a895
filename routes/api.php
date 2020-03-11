@@ -19,9 +19,9 @@ $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api'
 ], function($api) {
     $api->group([
-        'middleware' => 'api.throttle',
-        'limit'      => 1,
-        'expires'    => 1,
+        /* 'middleware' => 'api.throttle', */
+        /* 'limit'      => 1, */
+        /* 'expires'    => 1, */
     ], function($api) {
         // 注册短信验证码
         $api->post('verificationCodes', 'VerificationCodesController@store');
@@ -31,7 +31,7 @@ $api->version('v1', [
     $api->post('authorizations', 'AuthorizationsController@store');
 
     $api->post('users', 'UsersController@store');
-    $api->put('users/password', 'UsersController@updatePassword');
+    $api->post('users/updatepassword', 'UsersController@updatePassword');
 
     $api->get('index', 'IndexController@index');
 
@@ -55,21 +55,22 @@ $api->version('v1', [
        // 需要 token 验证的接口
     $api->group(['middleware' => 'api.auth'], function($api) {
         $api->get('cases', 'CasesController@index');
+        $api->get('cases/recomments', 'CasesController@recommentShow');
         $api->get('cases/city_codes/{city_code}', 'CasesController@searchByCityCode');
         $api->get('cases/{id}', 'CasesController@show')->where('id', '[0-9]+');
-        $api->put('cases/{id}/like', 'CasesController@like');
-        $api->delete('cases/{id}/like', 'CasesController@destroyLike');
-        $api->put('cases/{id}/favorite', 'CasesController@favorite');
-        $api->delete('cases/{id}/favorite', 'CasesController@destroyFavorite');
+        $api->post('cases/{id}/patch_like', 'CasesController@like');
+        $api->post('cases/{id}/del_like', 'CasesController@destroyLike');
+        $api->post('cases/{id}/patch_favorite', 'CasesController@favorite');
+        $api->post('cases/{id}/del_favorite', 'CasesController@destroyFavorite');
         $api->post('cases/{id}/comments', 'CasesController@saveComment');
         $api->get('cases/orders/{id}', 'CaseOrderController@show');
         $api->put('cases/orders/{id}/application', 'CaseOrderController@update');
         $api->get('cases/orders/{order_id}/pay_times', 'PaytimesController@index');
         $api->post('cases/orders/{order_id}/pay_times/{id}/pay', 'PaytimesController@update');
         $api->post('cases/orders/{id}/pay', 'CaseOrderController@pay');
-        $api->put('cases/orders/{id}/comment', 'CaseOrderController@saveComment');
+        $api->post('cases/orders/{id}/patch_comment', 'CaseOrderController@saveComment');
         $api->get('cases/orders', 'CaseOrderController@index');
-        $api->delete('cases/orders/{id}', 'CaseOrderController@destroy');
+        $api->post('del_cases/orders/{id}', 'CaseOrderController@destroy');
 
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store') ;
@@ -78,26 +79,26 @@ $api->version('v1', [
         $api->get('about_us/categores', 'MeConfigController@aboutUs');
         $api->get('about_us/{type}', 'MeConfigController@aboutUsList');
         $api->post('feedback', 'MeConfigController@feedback');
-        $api->patch('userpwd', 'MeConfigController@userPwdUpdate');
-        $api->patch('transfer_pwd', 'MeConfigController@transferPwd');
+        $api->post('patch_userpwd', 'MeConfigController@userPwdUpdate');
+        $api->post('patch_transfer_pwd', 'MeConfigController@transferPwd');
 
         // 个人主页
         $api->get('userinfo', 'MeUserInfoController@getUserInfo');
-        $api->patch('avatar', 'MeUserInfoController@avatarUpdate');
-        $api->patch('user_nickname', 'MeUserInfoController@nickNameUpdate');
+        $api->post('patch_avatar', 'MeUserInfoController@avatarUpdate');
+        $api->post('patch_user_nickname', 'MeUserInfoController@nickNameUpdate');
         $api->get('address', 'UsersController@addressinde');
         $api->post('address', 'UsersController@addressSave');
-        $api->patch('address/{address_id}', 'UsersController@addressUpdate');
-        $api->delete('address/{address_id}', 'UsersController@addressDestroy');
+        $api->post('patch_address/{address_id}', 'UsersController@addressUpdate');
+        $api->post('del_address/{address_id}', 'UsersController@addressDestroy');
         
         // 我的收藏
         $api->get('favorite_cases', 'UsersController@getCollectionList');
         $api->get('favorite_cases/{id}', 'UsersController@getCollectionInfo');
-        $api->delete('favorite_cases/{id}', 'UsersController@collectionDelete');
+        $api->post('del_favorite_cases/{id}', 'UsersController@collectionDelete');
 
         // 积分
         $api->get('credits', 'MeCreditController@getTaskList');
-        $api->patch('credits', 'MeCreditController@transferAccounts');
+        $api->post('patch_credits', 'MeCreditController@transferAccounts');
         $api->get('credits', 'MeCreditController@meCreditList');
 
         // 商城 
@@ -109,8 +110,10 @@ $api->version('v1', [
         $api->get('goods/orders', 'GoodsOrderController@index');
         $api->get('goods/orders/{id}/express', 'GoodsOrderController@expressShow');
         $api->get('goods/orders/{id}', 'GoodsOrderController@show');
+        $api->get('goods/orders/{id}/status/4', 'GoodsOrderController@show');
         $api->post('goods/orders/{id}/comment', 'GoodsOrderController@saveComment');
-        $api->delete('goods/orders/{id}', 'GoodsOrderController@destroy')->where('id', '[0-9]+');
+        $api->post('goods/orders/{id}/receive', 'GoodsOrderController@receive');
+        $api->post('del_goods/orders/{id}', 'GoodsOrderController@destroy')->where('id', '[0-9]+');
         $api->post('orders/refund/{id}', 'GoodsOrderController@refundSave')->where('id', '[0-9]+');
 
         // 我的订单

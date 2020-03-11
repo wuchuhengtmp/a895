@@ -197,4 +197,15 @@ class GoodsOrderController extends Controller
             return $this->responseFail();
         }
     }
+
+    /**
+     * 收货
+     *
+     */
+    public function receive(Request $Request, Order $OrderModel)
+    {
+        $Order = $OrderModel->where('id', $Request->id)->first();
+        $Order->status = 3;
+        return $Order->save() ? $this->responseSuccess() : $this->responseFail();
+    }
 }

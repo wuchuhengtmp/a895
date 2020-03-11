@@ -56,5 +56,10 @@ class Cases extends Model
     {
         return $this->hasOne(CaseCategory::class, 'id', 'case_category_id');
     }
+
+    public function favorites()
+    {
+        return $this->hasMany(FavoriteCase::class, 'case_id', 'id');
+    }
 }
 

@@ -23,13 +23,13 @@ class CheckPhoneRegister
             ],
             'password' => [
                 'required',
-                'digits_between:6,20'
+                /* 'digits_between:6,20' */
             ]
         ], [
-            'validate_key.required'   => '短信验证key不能为空',
-            'code.required'           => '短信验证码不能为空',
-            'password.required'       => '密码不能为空',
-            'password.digits_between' => '请输入6-20位的密码',
+            'validate_key.required' => '短信验证key不能为空',
+            'code.required'         => '短信验证码不能为空',
+            'password.required'     => '密码不能为空',
+            'password.digits_between'     => '请输入6-20位的密码',
         ]);
         if ($CheckResult->fails()) {
             throw new BaseException([

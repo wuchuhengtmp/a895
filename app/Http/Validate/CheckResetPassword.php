@@ -23,7 +23,7 @@ class CheckResetPassword
             ],
             'password' => [
                 'required',
-                'digits_between:6,20'
+                /* 'digits_between:6,20' */
             ]
         ], [
             'validate_key.required'   => '短信验证key不能为空',
@@ -31,6 +31,8 @@ class CheckResetPassword
             'password.required'       => '密码不能为空',
             'password.digits_between' => '请输入6-20位的密码',
         ]);
+
+
         if ($CheckResult->fails()) {
             throw new BaseException([
                 'msg' => $CheckResult->errors()->first()
@@ -44,11 +46,11 @@ class CheckResetPassword
             ]); 
         } 
         $phone_info = \Cache::get($cache_key);
-        if ($phone_info['type'] !== 'reset_password') {
-            throw new BaseException([
-                'msg' => '请传入注册验证码的key'
-            ]); 
-        } 
+        /* if ($phone_info['type'] !== 'reset_password') { */
+        /*     throw new BaseException([ */
+        /*         'msg' => '请传入注册验证码的key' */
+        /*     ]); */ 
+        /* } */ 
         if ($phone_info['code'] !== request()->code) {
             throw new BaseException([
                 'msg' => '验证码不正确'

@@ -112,8 +112,8 @@ class CasesController extends Controller
         $case_id= $Request->route('id');
         $that  = $this;
         $CheckResult = Validator::make(['case_id' => $case_id], [
+            'case_id' => [
                 'required',
-                'case_id' => [
                 'exists:cases,id',
                 function ($attribute, $value, $fail) use ($CaseLikes, $that) {
                     if ($CaseLikes->where('case_id', $value)
@@ -327,6 +327,40 @@ class CasesController extends Controller
         }
         $return_result['total'] = $Page_list->total();
         return $this->responseSuccessData($return_result);
+    }
+
+    /**
+     * 推荐
+     */
+    public function recommentShow(Request $Request, Cases $CaseModel, FavoriteCase $FavoriteCase)
+    {
+        $return_data = [
+            'list' => [],
+            'total' =>0
+        ];
+        $Cases = $CaseModel->where('is_commend', 1)
+            ->with(['designer', 'favorites'])
+            ->select(['id', 'designer_id', 'thumb_url', 'title', 'clickes', 'thumb_type'])
+            ->paginate(10);
+        if (!$Cases->isEmpty()) {
+            $Cases->each(function(&$el) use(&$return_data){
+                if ($el->thumb_type === 'image') {
+                    $el->thumb_url = Storage::disk('img')->url($el->thumb_url);
+                }
+                $el->avatar = Storage::disk('img')->url($el->designer->avatar);
+                $el->name = $el->designer->name;
+                $el->favorite_count = $el->favorites->count();
+                $has_favorite = FavoriteCase::where('user_id', $this->user()->id)
+                    ->where('case_id', $el->id)->first();
+                $el->is_favorite = $has_favorite ? true : false;
+                unset($el->designer, $el->favorites);
+                $return_data['list'][] = $el->toArray();
+            });
+        }
+        return $this->responseSuccessData([
+            'list'  => $return_data['list'],
+            'total' => $Cases->total(),
+        ]);
     }
 }
 
