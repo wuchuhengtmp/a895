@@ -28,18 +28,11 @@ class ArticleController extends Controller
      * 资讯列表
      *
      */
-    public function index(Request $Request)
+    public function index()
     {
-        if ($Request->has('category_id')) {
-            $Articles = Article::orderBy('id', 'DESC')
-                ->select(['id', 'title', 'thumb_type', 'thumb_url', 'clickes'])
-                ->where('category_id', $Request->category_id)
-                ->paginate(10);
-        } else {
-            $Articles = Article::orderBy('id', 'DESC')
-                ->select(['id', 'title', 'thumb_type', 'thumb_url', 'clickes'])
-                ->paginate(10);
-        }
+        $Articles = Article::orderBy('id', 'DESC')
+            ->select(['id', 'title', 'thumb_type', 'thumb_url', 'clickes'])
+            ->paginate(10);
         $Articles->each(function($item, $key){
             if ($item->thumb_type === 'image') {
                 $item->thumb_url  = Storage::disk('admin')->url($item->thumb_url);
