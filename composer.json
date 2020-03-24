@@ -25,16 +25,21 @@
         "overtrue/easy-sms": "^1.1",
         "overtrue/laravel-filesystem-qiniu": "^1.0",
         "overtrue/laravel-wechat": "^5.0",
+        "overtrue/pinyin": "~4.0",
+        "overtrue/wechat": "^4.2",
         "socialiteproviders/weixin": "^4.0",
         "tymon/jwt-auth": "1.0.0-rc.4.1",
         "yansongda/pay": "^2.9",
         "yurunsoft/pay-sdk": "~2.0",
-        "yurunsoft/yurun-lock": "dev-master"
+        "yurunsoft/yurun-lock": "dev-master",
+        "zgldh/qiniu-laravel-storage": "^0.10.3"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.2",
         "beyondcode/laravel-dump-server": "^1.0",
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
+        "laravel/ui": "^1.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^3.0",
         "phpunit/phpunit": "^7.5"

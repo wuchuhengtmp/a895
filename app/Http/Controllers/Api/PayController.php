@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 use App\Http\Validate\{
     CheckUserExists
 };
+use Illuminate\Support\Facades\Log;
 use App\Http\Service\{
     PayOperation as PayOperationService
 };
+use \Overtrue\Wechat\Payment\Notify;
+use App\Http\Service\Pay;
+use App\Model\Order;
+use App\Model\CaseOrder;
 
 class PayController extends Controller
 {
@@ -25,26 +30,39 @@ class PayController extends Controller
     }
 
     /**
-     * 微信回调
+     * 微信商品订单回调
      *
      */
-    public function wxNotify()
+    public function wxNotify(Request $Request)
     {
-        // 公共配置
-        $params = new \Yurun\PaySDK\Weixin\Params\PublicParams;
-        $params->appID  = env('APPID');
-        $params->mch_id = env('MECHID');
-        $params->key    = env('KEY');
+        $app = (new Pay())->getWechApp();
+        $response = $app->handlePaidNotify(function ($message, $fail) use($Request){
+            $Order = Order::where('out_trade_no', $message['out_trade_no'])->first();
+            $Order->status = 1;
+            $Order->save();
+            Log::info($message);
+            return true;
+        });
 
-        // SDK实例化，传入公共配置
-        $sdk = new \Yurun\PaySDK\Weixin\SDK($params);
+        $response->send();
+    }
 
-        $payNotify = new PayNotifyController;
-        try{
-            $sdk->notify($payNotify);
-        }catch(Exception $e){
-            file_put_contents(__DIR__ . '/notify_result.txt', $e->getMessage() . ':' . var_export($payNotify->data, true));
-        }
+    /**
+     * 微信装修订单回调
+     *
+     */
+    public function wxCaseOrderNotify(Request $Request)
+    {
+        $app = (new Pay())->getWechApp();
+        $response = $app->handlePaidNotify(function ($message, $fail) use($Request){
+            $CaseOrder = CaseOrder::where('out_trade_no', $message['out_trade_no'])->first();
+            $CaseOrder->status = 100;
+            $CaseOrder->save();
+            Log::info($message);
+            return true;
+        });
+
+        $response->send(); 
     }
 
     /**

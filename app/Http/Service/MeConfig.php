@@ -85,7 +85,7 @@ class MeConfig extends Base
      *  获取关于我们的分类信息
      *
      */
-    public function getInfoByType(int $type)
+    public function getInfoByType($type)
     {
         $info_list = MeConfigModel::select('content')->where('type', $type)->first();
         if(!$info_list){

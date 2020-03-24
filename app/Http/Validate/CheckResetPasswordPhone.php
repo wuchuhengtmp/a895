@@ -17,10 +17,5 @@ class CheckResetPasswordPhone
         (new CheckPhone())->gocheck();
         $phone= request()->phone;
         $HasPhone = UserModel::where('phone', $phone)->limit(1)->get();
-        if ($HasPhone->isEmpty()) {
-            throw new BaseException([
-                'msg' => '没有这个手机号'
-            ]);
-        }
     }
 }

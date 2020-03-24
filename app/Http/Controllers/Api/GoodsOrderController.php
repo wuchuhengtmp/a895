@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use App\Http\Validate\{
     CheckGoodsOrder
 };
+use Illuminate\Support\Facades\Validator;
+use App\Exceptions\Api\{
+    Base as BaseException
+};
 use App\Model\{
     Order,
     Address,
@@ -17,7 +21,11 @@ use App\Model\{
 };
 
 use Illuminate\Support\Facades\Storage;
-use App\Http\Service\Express;
+use App\Http\Service\{
+    Express,
+    Pay as PayService
+};
+use Illuminate\Support\Facades\DB;
 
 class GoodsOrderController extends Controller
 {
@@ -29,10 +37,10 @@ class GoodsOrderController extends Controller
    {
        (new CheckGoodsOrder())->scene('get_order_list')->goCheck();
        $return_arr = ['list' => [], 'total' => 0];
-       $Orders = $OrderModel->whereIn('status', explode(',', $Request->status))->paginate();
+       $Orders = $OrderModel->where('user_id', $this->user()->id)->whereIn('status', explode(',', $Request->status))->paginate();
        foreach($Orders as $Order) {
            $order_info = [];
-           $order_info = $Order->only('id', 'title', 'total_price', 'total_credit', 'status', 'goods_info');
+           $order_info = $Order->only('id', 'title', 'total_price', 'total_credit', 'status', 'goods_info', 'total');
            $goods_info = json_decode($order_info['goods_info'], true);
            $thumb = Storage::disk('img')->url($goods_info['thumb']);
            unset($order_info['goods_info']);
@@ -45,7 +53,8 @@ class GoodsOrderController extends Controller
            $order_info['thumb'] = $thumb;
            $return_arr['list'][] = $order_info;
        }
-       $return_arr['total'] = $Orders->total();
+       $return_arr['total'] = $Orders->lastPage();
+       $return_arr['lastpage'] = $Orders->lastPage();
        return $this->responseSuccessData($return_arr);
    } 
 
@@ -139,6 +148,13 @@ class GoodsOrderController extends Controller
        $return_arr['goods_info']['total_credit'] = $Order->total_credit;
        $return_arr['goods_info']['pay_type'] = $Order->pay_type;
        $return_arr['goods_info']['total'] = $Order->total;
+       $return_arr['status'] = $Order->status;
+       if (in_array($Order->status, [2, 3])) {
+           $return_arr['goods_info']['express_type'] = $Order->express->name;
+       } else {
+           $return_arr['goods_info']['express_type'] = '订单未发货';
+       }
+           /* 状态 -1表示取消 0表示未支付 1表示已支付 2发货, 3表示已完成 */
        return $this->responseSuccessData($return_arr);
     }
 
@@ -150,6 +166,8 @@ class GoodsOrderController extends Controller
     {
         (new CheckGoodsOrder())->scene('save_comment')->goCheck();
         $Order = $OrderModel->where('id', $Request->id)->first();
+        $Order->status = 4;
+        $Order->save();
         $GoodsInfo = json_decode($Order->goods_info);
         $GoodsComment->user_id       = $this->user()->id;
         $GoodsComment->goods_id      = $GoodsInfo->id;
@@ -167,12 +185,15 @@ class GoodsOrderController extends Controller
     } 
 
     /**
-     * 删除订单
+     * 关闭订单
      */
     public function destroy(Request $Request, Order $OrderModel)
     {
         (new CheckGoodsOrder())->scene('delete')->goCheck();
-        if($OrderModel->where('id', $Request->id)->delete()) 
+        // :xxx  退款  退钱和退积分
+        $Order =$OrderModel->where('id', $Request->id)->first();
+        $Order->status =  -1;
+        if($Order->save()) 
         {
             return $this->responseSuccess();
         } else {
@@ -207,5 +228,55 @@ class GoodsOrderController extends Controller
         $Order = $OrderModel->where('id', $Request->id)->first();
         $Order->status = 3;
         return $Order->save() ? $this->responseSuccess() : $this->responseFail();
+    }
+
+    /**
+     * 订单重新支付
+     *
+     */
+    public function repay(Request $Request, Order $OrderModel, PayService $PayService) 
+    {
+        $id = $Request->route()->id;
+        $CheckResult = Validator::make(array_merge(['id' => $id], $Request->toArray()), [
+            'id' => [
+                'required',
+                'exists:orders,id',
+            ],
+            'pay_type' => [
+                'required',
+                'in:wechat,alipay'
+            ]
+        ]);
+        if ($CheckResult->fails()) {
+            throw new BaseException([
+                'msg' => $CheckResult->errors()->first()
+            ]);
+        }
+        if (!$Order = $OrderModel->where('id', $id)->where('user_id', $this->user()->id)->first()) {
+            throw new BaseException([
+                'msg' => '没有这个订单'
+            ]);
+        }
+
+        // 生成支付签名
+        DB::beginTransaction();
+        try {
+            if ($Order->pay_type === 'wechat') {
+                $app_pay_sign = $PayService->wechatPay([
+                    'title'        => $Order->title,
+                    'out_trade_no' => $Order->out_trade_no,
+                    'total_price'  => $Order->total_price
+                ]);
+            } else {
+                // :xxx 支付宝
+            }
+            $Order->app_pay_sign = json_encode($app_pay_sign);
+            $Order->save();
+            DB::commit();
+        } catch(\Exception $E){
+            DB::rollBack();
+            return $this->responseFail('订单生成失败');
+        }
+        return $this->responseSuccessData($app_pay_sign);
     }
 }

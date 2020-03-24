@@ -23,26 +23,25 @@ class MeCollection extends Base
      */
     public function getCollectionList(int $user_id)
     {
-        $ids = FavoriteCaseModel::select('case_id')->where('user_id', $user_id)->get()->toArray();
-        if(!$ids){
-            return false;
-        }
-        $user_ids = [];
-        foreach ($ids as $v){
-            $user_ids[] = $v['case_id'];
-        }
-        $list = CasesModel::select('id','title','thumb_type','thumb_url','thumb_video_url')->whereIn('id',$user_ids)->orderBy('id','desc')->get()->toArray();
-        for($i=0;$i<count($list);$i++){
-            if($list[$i]['thumb_type'] == 'image'){
-                unset($list[$i]['thumb_video_url']);
-                $list[$i]['thumb_url'] = env('APP_URL').'/uploads/'.$list[$i]['thumb_url'];
-            }else{
-                unset($list[$i]['thumb_url']);
-                $list[$i]['thumb_video_url'] = env('APP_URL').'/uploads/'.$list[$i]['thumb_video_url'];
-            }
-        }
+        $return_data = [
+            'list' => [],
+            'total' => 0,
+            'lastpage' => 0
+        ];
+        $Favorites = FavoriteCaseModel::where('user_id', $user_id)->paginate(10);
 
-        return $list;
+        $return_data['total'] = $Favorites->total();
+        $return_data['lastpage'] = $Favorites->lastpage();
+        foreach($Favorites as $Favorite) {
+            $tmp               = [];
+            $tmp['id']         = $Favorite->id;
+            $tmp['case_id']         = $Favorite->case_id;
+            $tmp['title']      = $Favorite->case->title;
+            $tmp['thumb_type'] = $Favorite->case->thumb_type;
+            $tmp['thumb_url']  = get_absolute_url($Favorite->case->thumb_url);
+            $return_data['list'][] = $tmp;
+        }
+        return $return_data;
     }
 
     /*
@@ -75,7 +74,7 @@ class MeCollection extends Base
      */
     public function collectionDelete(int $user_id,int $id)
     {
-        $bool= FavoriteCaseModel::where(['user_id'=>$user_id,'case_id'=>$id])->delete();
+        $bool= FavoriteCaseModel::where(['user_id'=>$user_id,'id'=>$id])->delete();
         if(!$bool){
             throw new SystemErrorException([
                 'msg' => '删除收藏失败'

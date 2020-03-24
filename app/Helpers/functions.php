@@ -437,6 +437,6 @@ function format_time($time)
  */
 function get_absolute_url($url)
 {
-    return Storage::disk('img')->url($url);
+    return array_key_exists('host', parse_url($url)) ? $url : Storage::disk('qiniu')->url($url);
 }
 

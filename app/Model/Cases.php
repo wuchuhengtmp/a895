@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Cases extends Model
 {
@@ -28,7 +29,9 @@ class Cases extends Model
         'city_code',
         'community',
         'longitude',
-        'latitude'
+        'latitude',
+        'introduction',
+        'period'
     ];
 
     /**
@@ -60,6 +63,27 @@ class Cases extends Model
     public function favorites()
     {
         return $this->hasMany(FavoriteCase::class, 'case_id', 'id');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(CaseLikes::class, 'case_id', 'id');
+    }
+
+    public function getPeriodAttribute($value)
+    {
+        return json_decode($value, true);
+    }
+
+    public function setPeriodAttribute($value)
+    {
+        $value = json_encode($value);
+        $this->attributes['period'] = $value;
+    }
+
+    public function getThumbUrlAttribute($value)
+    {
+        return get_absolute_url($value);
     }
 }
 

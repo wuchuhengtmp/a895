@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request as RequestClient;
 use App\Exceptions\Api\Base as BaseException;
 use App\Model\User;
+use Illuminate\Support\Facades\Storage;
 
 class AuthorizationsController extends Controller
 {
@@ -38,7 +39,6 @@ class AuthorizationsController extends Controller
             'code.required' => 'code不能为空'
         ]);
 
-
         $client = new Client([
             // Base URI is used with relative requests
             'base_uri' => 'http://baidu.com',
@@ -47,11 +47,9 @@ class AuthorizationsController extends Controller
         ]);
         
         $client->request('GET', '/get', ['query' => ['foo' => 'bar']]);
-        /* $appid = 'wxaf95849eab1f779d'; */
-        /* $secret = '34dd7ce219c5c568b7d7a129e86ab54b'; */
-        $appid = get_config('WX_APPID');
-        $secret = get_config('WX_APPSECRET');
-        $code= $Request->code;
+        $appid    = get_config('WX_APPID');
+        $secret   = get_config('WX_APPSECRET');
+        $code     = $Request->code;
         $response = file_get_contents("https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$secret}&code={$code}&grant_type=authorization_code");
         $response = json_decode($response, true);
         if (array_key_exists('errcode', $response)) {
@@ -74,14 +72,20 @@ class AuthorizationsController extends Controller
             $UserModel->openid   = $Userinfo_response->openid;
             $UserModel->nickname = $Userinfo_response->nickname;
             $UserModel->avatar   = $Userinfo_response->headimgurl;
+            $file_name  = 'avatar' . '/' .time() . rand(1, 9999999) . ".png";
+            Storage::disk('qiniu')->put($file_name, file_get_contents($UserModel->avatar));
+            $UserModel->avatar = $file_name;
             $UserModel->save();
         }
-        $User = $UserModel->where('openid', $openid)->select('openid')->first();
+        $User = $UserModel->where('openid', $openid)->first();
         $token=\Auth::guard('api')->fromUser($User);
+        $has_phone = $User->phone ? 1 : 0;
         return $this->responseSuccessData([
             'access_token' => $token,
             'token_type'   => 'Bearer',
-            'expires_in'   => \Auth::guard('api')->factory()->getTTL() * 60
+            'expires_in'   => \Auth::guard('api')->factory()->getTTL() * 60,
+            'has_phone'   => $has_phone
+
         ]);
     }
 }

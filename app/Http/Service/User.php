@@ -5,7 +5,8 @@ namespace App\Http\Service;
 use App\Model\{
     User    as UserModel,
     SignLog as SignLogModel,
-    Address as AddressModel
+    Address as AddressModel,
+    CreditLog as CreditLogModel
 };
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class User extends Base
         $User->phone = $phone_info['phone'];
         $avatar = get_config('DEFAULT_AVATOR');
         $path_info = pathinfo($avatar);
-        $new_avatar = $path_info['dirname'] . '/' .  uniqid() . '.' . $path_info['extension'];
+        $new_avatar = uniqid() . '.' . $path_info['extension'];
         Storage::disk('admin')->copy($avatar, $new_avatar);
         $User->avatar  = $new_avatar;
         $User->is_admin = 0; 
@@ -79,6 +80,7 @@ class User extends Base
             $el['is_sign'] = 0;
             return $el;
         }, $credit_list);
+        $sign_days = 0;
         if ($SingLog->isNotEmpty()) {
             $sign_list = (new CreditLogic())->getSignDaysByUserId($user_id);
             foreach($credit_list as $key => &$credit) {
@@ -89,13 +91,20 @@ class User extends Base
         $today_time = strtotime(date('Y-m-d'));
         $end_date   = date("Y-m-d H:i:s", ($today_time + 60 * 60 * 24 -1));
         $start_date = date("Y-m-d H:i:s", $today_time);
+        // 计数签到天数
+        foreach($credit_list as $el) {
+            if ($el['is_sign'] == 1) {
+                $sign_days++;
+            }
+        }
         $SingLog    = SignLogModel::whereBetween('created_at', [$start_date, $end_date])
             ->where('user_id', $user_id)
             ->limit(1)
             ->get();
         return [
-            'list'    => $credit_list,
-            'is_today_sign' => $SingLog->isEmpty() ? 0 : 1
+            'list'          => $credit_list,
+            'is_today_sign' => $SingLog->isEmpty() ? 0 : 1,
+            'sign_days'     => $sign_days
         ];
         
     }
@@ -113,7 +122,10 @@ class User extends Base
             ->where('user_id', $user_id)
             ->limit(1)
             ->get();
-        if ($SingLog->isNotEmpty()) {
+        $LastLog = (new CreditLogModel())->where('user_id', $this->user()->id)
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($LastLog && date('Y-m-d', $LastLog->created_at->timestamp) == date('Y-m-d')) {
             throw new BaseException([
                 'msg' => '您已经签到了'
             ]);
@@ -122,9 +134,9 @@ class User extends Base
         $SingLog->user_id = $user_id;
         DB::beginTransaction();
         try{
-            $SingLog->save();
             // 登记签到积分
             (new CreditLog())->logSignCreditByUserId($user_id);
+            $SingLog->save();
             DB::commit();
         } catch(\Exception $E) {
             DB::rollBack();

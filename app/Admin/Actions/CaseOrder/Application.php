@@ -9,6 +9,22 @@ use App\Model\PayTimes;
 class Application extends RowAction
 {
     public $name = '订单申请';
+    public $times = [
+            1 => '一期',
+            2 => '二期',
+            3 => '三期',
+            4 => '四期',
+            5 => '五期',
+            6 => '六期',
+            7 => '七期',
+            8 => '八期',
+            9 => '九期',
+            10 => '十期',
+            11 => '十一期',
+            12 => '十二期',
+            13 => '十三期',
+            14 => '十四期',
+        ];
 
     public function handle(Model $model)
     {
@@ -17,7 +33,7 @@ class Application extends RowAction
         if (request()->has('reply')) $model->reply = request()->reply;
         if ($model->app_pay_type === 'installment' && request()->status == 200) {
                 $year   = $model->created_at->format("Y");
-                $month  = $model->created_at->format("m");
+                $month  = +$model->created_at->format("m");
                 $day    = get_config('PAY_DAY');
                 $time_price = round($model->balance / $model->times, 2);
             for($i = 1; $i <= $model->times; $i++) {

@@ -28,7 +28,7 @@ class MeUserInfo extends Base
     public function getUserInfo(int $user_id)
     {
         $User = UserModel::select('avatar','nickname','id','credit')->where('id', $user_id)->first();
-        $User->avatar = env('APP_URL').'/uploads/'.$User->avatar;
+        $User->avatar = get_absolute_url($User->avatar);
         return $User->toArray();
     }
     

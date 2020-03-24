@@ -40,6 +40,7 @@ class PaytimesController extends Controller
     public function update(Request $Request, PayTimesService $PayTimesService)
     {
         (new CheckPayTimes())->scene('application')->gocheck();
+        $PayTimesModel = new PayTimesModel();
         $PayTimesModel->where('id', $Request->id)->first();
         $data = [
             'id' => $Request->id,

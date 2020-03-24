@@ -125,7 +125,7 @@ class MeOrder extends Base
      */
     public function orderInfo(int $id)
     {
-        $list = OrderModel::select('address_info','title','price','credit','pay_type','goods_id')->where('id',$id)->first();
+        $list = OrderModel::select('address_info','title', 'price','credit','pay_type','goods_id')->where('id',$id)->first();
         if(!$list){
             throw new SystemErrorException([
                 'msg' => '该订单不存在'

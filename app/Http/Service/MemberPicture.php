@@ -8,6 +8,8 @@ use App\Exceptions\Api\{
     Base as BaseException,
     SystemErrorException
 };
+use Monolog\Logger;
+use Illuminate\Support\Facades\Log;
 
 class MemberPicture extends Base
 {
@@ -18,14 +20,35 @@ class MemberPicture extends Base
     public function avatarUrlGet()
     {
         $Request = request();
-        if ($Request->hasFile('avatar')) {
-            $file = $Request->file('avatar');
+        if ($Request->has('avatar')) {
+            $file = $Request->avatar;
+            $file_content = base64_decode($file);
+            $fc = iconv('windows-1250', 'utf-8', $file);
+            $handle=fopen("php://temp", "rw");
+            fwrite($handle, $file_content );
+            fseek($handle, 0);
+            $mime_type  =  mime_content_type($handle);
+            if (in_array($mime_type, ['image/jpeg', 'image/gif', 'image/jpeg', 'image/x-icon', 'image/png'])) {
+                $mime_list = [
+                    'image/jpeg' => 'jpeg',
+                    'image/gif' => 'gif',
+                    'image/jpeg' => 'jpeg',
+                    'image/x-icon' => 'ico',
+                    'image/png' => 'png'
+                ];
+                $relative_path  = time() . rand(1, 99999) . '.' . $mime_list[$mime_type];
+                $path = Storage::disk('img')->path($relative_path);
+                is_dir(dirname($path)) || mkdir(dirname($path), 0700, true);
+                file_put_contents($path, $file_content);
+                return ['avatar' => 'images/' . $relative_path];
+            } else {
+                throw new SystemErrorException([
+                    'msg' => '图片格式有误！'
+                ]);
+            }
             if ($file->isValid()) {
                 $allowed_extensions = ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'ico'];
                 if ($file->getClientOriginalExtension() && !in_array($file->getClientOriginalExtension(), $allowed_extensions)) {
-                    throw new SystemErrorException([
-                        'msg' => '图片格式有误！'
-                    ]);
                 }
                 //获取扩展名
                 $ext = $file->getClientOriginalExtension();

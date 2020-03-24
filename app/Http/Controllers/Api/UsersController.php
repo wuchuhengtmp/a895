@@ -9,7 +9,9 @@ use App\Http\Validate\{
     CheckResetPassword 
 };
 use App\Model\{
-    Address as AddressModel
+    Address as AddressModel,
+    User as UserModel,
+    Share
 };
 use App\Http\Validate\{
     CheckUserExists,
@@ -21,6 +23,9 @@ use App\Http\Service\{
     User         as UserService
 };
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use App\Exceptions\Api\Base as BaseException;
+use App\Model\User;
 
 class UsersController extends Controller
 {
@@ -89,10 +94,16 @@ class UsersController extends Controller
      * 删除收藏
      *
      */
-    public function collectionDelete($id)
+    public function collectionDelete(Request $Request)
     {
         (new CheckUserExists())->gocheck();
-        (new MeCollectionService())->collectionDelete($this->user()->id,$id);
+        $ids = array_filter(explode(',', $Request->ids));
+        $ids = array_unique($ids);
+
+        foreach($ids as $id) {
+            (new MeCollectionService())->collectionDelete($this->user()->id,$id);
+        }
+        
         return $this->responseSuccess();
     }
 
@@ -106,12 +117,17 @@ class UsersController extends Controller
             ->where('is_default', 1)
             ->get();
         if ($Address->isEmpty()) {
-            return $this->responseFail('没有收货地址，请添加');
+            /* return $this->responseFail('没有收货地址，请添加'); */
+            throw new BaseException([
+                'code' =>  402,
+                'msg' => '没有收货地址，请添加'
+            ]);
         } else {
             $Address = $Address->first();
             return $this->responseSuccessData([
                 'id' => $Address->id,
                 'phone' => $Address->phone,
+                'name' => $Address->name,
                 'city_code' => $Address->city_code,
                 'city_name' => $Address->city->name,
                 'address' => $Address->address
@@ -176,18 +192,15 @@ class UsersController extends Controller
         $Request->phone     && $Address->phone     = $Request->phone;
         $Request->city_code && $Address->city_code = $Request->city_code;
         $Request->address   && $Address->address   = $Request->address;
-        DB::beginTransaction();
-        try{
-            if ($Request->is_default) {
-                $Address->is_default = 1;
-                $AddressModel->where('user_id', $this->user()->id)
-                    ->update(['is_default' => 0]);
-            }
-            $Address->save();
-            DB::commit();
+        if ($Request->is_default == 1) {
+            DB::table('address')->where('user_id', $this->user()->id)
+                ->update(['is_default' => 0]);
+            $Address = $AddressModel->where('id', $Request->address_id)->first();
+            $Address->is_default = 1;
+        }
+        if ($Address->save()) {
             return $this->responseSuccess();
-        } catch(\Exception $E) {
-            DB::rollBack();
+        } else {
             return $this->responseFail();
         }
     }
@@ -200,6 +213,56 @@ class UsersController extends Controller
         } else {
             return $this->responseFail();
         }
+    }
+
+    public function resetPhone(Request $Request)
+    {
+        $Request->validate([
+            'code'         => 'required',
+            'validate_key' => 'required'
+        ], [
+            'code.required'         => 'code不能为空',
+            'validate_key.required' => '验证码'
+        ]);
+        $validate = Cache::get($Request->validate_key);
+        if ($validate['code'] !== $Request->code) {
+            throw new BaseException([
+                'msg' => '验证码不正确'
+            ]);
+        }
+        $User = User::where('id', $this->user()->id)->first();
+        $User->phone = $validate['phone'];
+        if($User->save()){
+            return $this->responseSuccess();
+            Cache::forget($Request->validate_key);
+        } else {
+            return $this->responseFail();
+        }
+    }
+
+    public function share()
+    {
+        $Shares = Share::where('user_id', $this->user()->id)
+            ->with('shareUser')
+            ->select('id', 'share_id', 'user_id')
+            ->get();
+        $share_users = [];
+        foreach($Shares as $Share) {
+            $tmp = [];
+            $tmp['credites'] = $Share->shareUser->credit;
+            $tmp['nickname']     = $Share->shareUser->nickname;
+            $share_users[] = $tmp;
+        }
+        return $this->responseSuccessData([
+            'title'        => get_config('SHARE_TITLE'),
+            'img'          => get_config('SHARE_IMG'),
+            'content'      => get_config('SHARE_CONTENT'),
+            'share_credit' => get_config('SHARE_CREDIT'),
+            'sub_credit' => get_config('SHARE_SUB_CREDIT'),
+            'my_share_url' => env('APP_URL') . '/shares/' . $this->user()->id,
+            'my_credites'  => User::where('id', $this->user()->id)->first()->credit,
+            'list'  => $share_users
+        ]); 
     }
 }
 

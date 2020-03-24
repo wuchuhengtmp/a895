@@ -15,11 +15,11 @@ class Cases extends Base
      * 案例分页列表
      *
      */
-    public function getPageList(arary $params, ...$where_map): array
+    public function getPageList(array $params, ...$where_map): array
     {
         list($longitude, $latitude) = explode(',', $params['location']);
         $Page = CaseModel::OrderBy('id', 'DESC')
-            ->select(['id', 'clickes', 'longitude', 'latitude', 'designer_id']);
+            ->select(['id', 'clickes', 'longitude', 'latitude', 'designer_id', 'thumb_url']);
         if (count($where_map) !== []) {
             foreach($where_map as $map) {
                 if ($map) {
@@ -42,7 +42,7 @@ class Cases extends Base
                 $item->longitude, 
                 $item->latitude,
                 2
-            );
+            ) . 'Km';
             $Favorite = FavoriteCaseModel::where('user_id', $this->user()->id)->get();
             $item->is_favorite = $Favorite->isNotEmpty() ? 1 : 0;
             unset($item->designer,
@@ -55,8 +55,9 @@ class Cases extends Base
         $page_data = $Page->toArray();
          
         return [
-            'list' => $page_data['data'],
-            'total' => $page_data['total']
+            'list'     => $page_data['data'],
+            'total'    => $page_data['total'],
+            'lastpage' => $Page->lastPage()
         ];
     }
 
@@ -134,17 +135,22 @@ class Cases extends Base
                 'max_price',
                 'designer_id',
                 'latitude',
-                'longitude'
+                'longitude',
+                'summary as claim',
+                'thumb_url',
+                'thumb_type',
+                'clickes',
             ])
             ->first();
-        if ($Case->thumb_type === 'image') {
-            $Case->thumb_url = Storage::disk('admin')->url($Case->thumb_url);
-        }
+        $Case->distance;
+        $Case->clickes += 1;
+        $is_save = $Case->save();
         $Case->tags = explode(',', $Case->tags);
         $Case->designer_name = $Case->designer->name;
+        // : xxx
         $Case->avatar = Storage::disk('admin')->url($Case->designer->avatar);
-        $Case->evaluator =  $Case->min_price . '-' . $Case->max_price . 'm²';
-        $Case->makeHidden(['designer', 'max_price', 'min_price']);
+        $Case->evaluator =  number_format($Case->max_price, 2);
+        $Case->makeHidden(['thumb_type', 'designer', 'max_price', 'min_price', 'clickes']);
         return $Case;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Model\Goods;
+use App\Model\Subject;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\{
     Form,
@@ -28,7 +29,7 @@ class GoodsController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Goods());
-
+        $grid->model()->where('subject_id', request()->subject_id);
         $grid->column('id', __('Id'));
         $grid->column('title', __('Title'));
         $grid->column('total', __('Total'));
@@ -90,6 +91,14 @@ class GoodsController extends AdminController
         $form->number('credit', __('Credit'))->default(0);
         $form->decimal('price', __('Price'))->default(0);
         $form->image('thumb', __('Thumb'))->rules('required');
+        $subjects = Subject::select(['subject', 'id'])->get()->toArray();
+        foreach($subjects as $k=>$subject) {
+            $id = $subject['id'];
+            $subject = $subject['subject'];
+            unset($subjects[$k]);
+            $subjects[(int)$id] = $subject;
+        }
+        $form->hidden('subject_id')->default(request()->goods_id); 
 
         return $form;
     }

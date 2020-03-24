@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Exceptions\Api\Base as BaseException;
 use App\Model\{
     User as UserModel,
-    CaseOrder
+    CaseOrder,
+    Cases
 };
 
 class CheckCaseOrder extends Base
@@ -64,8 +65,7 @@ class CheckCaseOrder extends Base
         ],
         'times' => [
             'required_if:app_pay_type,installment',
-            'int',
-            'gt:1'
+            'int'
         ],
         'compact_url' => [
             'required'
@@ -125,6 +125,7 @@ class CheckCaseOrder extends Base
             'verify_application' => [
                 'id' => function($attribute, $value, $fail) {
                     $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+                    if (!$Order) return $fail('没有这个订单');
                     if ($Order->status === 0) {
                        return $fail('订单失效'); 
                     }
@@ -185,6 +186,14 @@ class CheckCaseOrder extends Base
                     $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
                     if (!$Order) {
                         return $fail('没有这个订单');
+                    }
+                }
+            ],
+            'create_order' => [
+                'case_id' => function($attribute, $value, $fail) {
+                    $Order = Cases::where('id', $value)->first();
+                    if (!$Order) {
+                        return $fail('没有这个案例');
                     }
                 }
             ]

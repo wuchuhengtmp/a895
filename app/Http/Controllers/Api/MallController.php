@@ -12,7 +12,8 @@ use App\Http\Service\{
     Pay as PayService
 };
 use App\Model\{
-    Slide as SlideModel
+    Slide as SlideModel,
+    Subject as  SubjectModel
 };
 use Illuminate\Support\Facades\Storage;
 use App\Http\Validate\{
@@ -26,18 +27,40 @@ class MallController extends Controller
      * 获取商品列表
      *
      */
-    public function getGoodsList()
+    public function getGoodsList(SlideModel $SlideModel, SubjectModel $SubjectModel)
     {
         (new CheckUserExists())->gocheck();
-        $goodsList = (new MallService())->getGoodsList();
-        return $this->responseSuccessData($goodsList);
+        $return_data = [
+            'list' => []
+        ];
+        $Subjects = $SubjectModel
+            ->get();
+        foreach($Subjects as &$Subject) {
+            $tmp['title'] = $Subject->subject;
+            $tmp['goods'] = [];
+            if (isset($Subject->goods)) {
+                foreach($Subject->goods as $Goods) {
+                    $sub_tmp = [];
+                    $sub_tmp['id'] = $Goods->id;
+                    $sub_tmp['name'] = $Goods->title;
+                    $sub_tmp['img'] = get_absolute_url($Goods->thumb);
+                    $sub_tmp['integral'] = $Goods->credit;
+                    $tmp['goods'][] = $sub_tmp;
+                }
+            }
+                $tmp['bannerimg']  = get_absolute_url($Subject->thumb);
+                $tmp['bannerurl'] = $Subject->redirection;
+            $return_data['list'][] = $tmp;
+        }
+
+        return $this->responseSuccessData($return_data);
     }
 
     /**
      * 获取商品详情信息
      *
      */
-    public function getGoodsInfo($id)
+    public function show($id)
     {
         (new CheckUserExists())->gocheck();
         $goodsInfo = (new MallService())->getGoodsInfo($id);

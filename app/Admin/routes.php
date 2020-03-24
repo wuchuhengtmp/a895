@@ -39,4 +39,6 @@ Route::group([
 
     $router->resource('orders', OrderController::class);
     $router->resource('cases/refund', RefundController::class);
+
+    $router->resource('subjects', SubjectController::class);
 });

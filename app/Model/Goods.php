@@ -12,6 +12,7 @@ class Goods extends Model
         'out_trade_no',
         'user_id',
         'goods_id',
+        'subject_id',
         'total',
         'pay_type',
         'address_info',

@@ -316,6 +316,12 @@
     "Express_co" : "快递公司",
     "Refund status": "退款状态",
     "Refund thumb" : "图片",
-    "refund reply" : "回复"
+    "refund reply" : "回复",
+    "min_price": "每平米最小报价",
+    "max_price": "每平米最大报价",
+    "prepay_price": "预约金",
+    "is_dispatch": "是否施工",
+    "service_city_code" : "服务城市",
+    "redirection" : "跳转链接"
  }
 

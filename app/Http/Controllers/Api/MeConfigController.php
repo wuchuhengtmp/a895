@@ -11,6 +11,7 @@ use App\Http\Service\{
 use App\Http\Validate\{
     CheckUserExists
 };
+use Illuminate\Support\Facades\View;
 
 class MeConfigController extends Controller
 {
@@ -53,68 +54,20 @@ class MeConfigController extends Controller
     {
         (new CheckUserExists())->gocheck();
         $about_list = (new MeConfigService())->getTypeList();
+        foreach($about_list as &$el) {
+            $el['full_url'] = $_SERVER['APP_URL'] .  "/api/about_us/" . $el['type'];
+        }
         return $this->responseSuccessData($about_list);
     }
 
     /**
-     * 获取关于我们的分类信息
+     * 获取关于我们的详情
      *
      */
     public function aboutUsList($type)
     {
-        (new CheckUserExists())->gocheck();
         $about_type_list = (new MeConfigService())->getInfoByType($type);
+        return View('article', $about_type_list);
         return $this->responseSuccessData($about_type_list);
     }
-
-    /**
-     *  查看全部数据
-     *
-     * @http GET
-     */
-//    public function index()
-//    {
-//
-//    }
-
-    /**
-     *   查看单条数据
-     *
-     */
-//    public function show()
-//    {
-//
-//    }
-
-    /**
-     * 删除单条数据
-     *
-     * @http  delete
-     */
-//    public function destroy()
-//    {
-//
-//    }
-
-    /**
-     *  更新
-     *
-     * @http   update
-     *
-     */
-//    public function update()
-//    {
-//
-//    }
-
-    /**
-     *   对象 大驼峰
-     *   数组  复数单词 戓者 结尾加_list  users 或 user_list
-     *   字符串 蛇形   $hello_wordl = 'hello '
-     *  方法命名 小驼峰
-     *   函数命名  蛇形
-     *
-     */
-
-
 }

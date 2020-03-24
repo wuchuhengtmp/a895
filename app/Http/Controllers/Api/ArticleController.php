@@ -9,6 +9,7 @@ use App\Model\{
 };
 use Illuminate\Support\Facades\Storage;
 use App\Exceptions\Api\Base as BaseException;
+use Illuminate\Support\Facades\View;
 
 class ArticleController extends Controller
 {
@@ -19,8 +20,13 @@ class ArticleController extends Controller
     public function categoresIndex()
     {
         $Categores = ArticleCategory::select(['id', 'name'])->get();
+        $categores_list = $Categores->toArray();
+        $a = asort($categores_list);
+        $categores_list = array_merge($categores_list, [['id' => 0, 'name' => '全部']]);
+        asort($categores_list);
+        $categores_list = array_values($categores_list);
         return $this->responseSuccessData(
-            $Categores->toArray()
+            $categores_list
         );
     }
 
@@ -30,7 +36,7 @@ class ArticleController extends Controller
      */
     public function index(Request $Request)
     {
-        if ($Request->has('category_id')) {
+        if ($Request->has('category_id') && $Request->category_id != 0) {
             $Articles = Article::orderBy('id', 'DESC')
                 ->select(['id', 'title', 'thumb_type', 'thumb_url', 'clickes'])
                 ->where('category_id', $Request->category_id)
@@ -45,10 +51,13 @@ class ArticleController extends Controller
                 $item->thumb_url  = Storage::disk('admin')->url($item->thumb_url);
             }
         });
+        foreach($Articles as $Article) {
+            $Article->url = env("APP_URL")  . '/api/articles/'  . $Article->id;
+        }
         $articles = $Articles->toArray();
         return $this->responseSuccessData([
-            'list' => $articles['data'],
-            'total' => $articles['total']
+            'list'  => $articles['data'],
+            'total' => $Articles->lastPage()
         ]);
     }
 
@@ -97,19 +106,8 @@ class ArticleController extends Controller
             ]);
         }
         $Article = $Articles->first();
-        if ($Article->thumb_type === 'image') {
-            $Article->thumb_url = Storage::disk('admin')->url($Article->thumb_url);
-        } else if ($Article->thumb_type === 'video')  {
-            $Article->thumb_video_url = Storage::disk('admin')->url($Article->thumb_video_url);
-        }
         $Article->clickes += 1;
         $Article->save();
-        return $this->responseSuccessData([
-            'title'           => $Article->title,
-            'content'         => $Article->content,
-            'thumb_url'       => $Article->thumb_url,
-            'thumb_type'      => $Article->thumb_type,
-            'thumb_video_url' => $Article->thumb_video_url
-        ]); 
+        return view('article', ['content' => $Article->content]);
     }
 }

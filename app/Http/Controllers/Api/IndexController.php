@@ -21,6 +21,7 @@ class IndexController extends Controller
         // 轮播图
         $Slides = SlideModel::select(['path', 'url'])
             ->orderBy('order_num', 'ASC')
+            ->where('type', 'index')
             ->get();
         $Slides->each(function($item, $key){
             $item->path = Storage::disk('admin')->url($item->path);
@@ -41,7 +42,7 @@ class IndexController extends Controller
         return $this->responseSuccessData([
             'notice'  => $notice,
             'slides' => $slides,
-            'share' => $share
+            'service' => get_config('CUSTOMER_URL')
         ]);
     }
 }

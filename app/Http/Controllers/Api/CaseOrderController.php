@@ -37,19 +37,23 @@ class CaseOrderController extends Controller
                 $status  = [400];
                 break;
         }
-        $CaseOrders = $CaseOrder->whereIn('status', $status)->paginate(10);
+        $CaseOrders = $CaseOrder->whereIn('status', $status)
+            ->where('user_id', $this->user()->id)
+            ->paginate(10);
         foreach($CaseOrders as $CaseOrder) {
             $tmp = [];
             $tmp['id'] = $CaseOrder->id;
             $Case  = json_decode($CaseOrder->case_info);
-            $tmp['thumb'] = get_absolute_url($Case->thumb_url);
+            $tmp['thumb_url'] = get_absolute_url($Case->thumb_url);
             $tmp['title'] = $CaseOrder->title;
             $tmp['prepay_price'] = $CaseOrder->prepay_price;
             $tmp['balance'] = $CaseOrder->balance;
-            $tmp['status'] = $CaseOrder->status;
+            $tmp['reply'] = (string)$CaseOrder->reply;
+            $tmp['status'] = (new CaseOrderService())->getStatusById($CaseOrder->id);
             $return_arr['list'][] = $tmp;
         }
         $return_arr['total'] = $CaseOrders->total();
+        $return_arr['lastpage'] = $CaseOrders->lastPage();
         return $this->responseSuccessData($return_arr);
     }
 
@@ -67,8 +71,7 @@ class CaseOrderController extends Controller
             'phone'     => $Request->input('phone'),
             'name'      => $Request->input('name'),
             'pay_type'  => $Request->input('pay_type'),
-            /* 'user_id'   => $this->user()->id */
-            'user_id'   => 12
+            'user_id'   => $this->user()->id
         ];
         $trade = (new  CaseOrderService())->generateOrder($case_data);
         return $this->responseSuccessData($trade);
@@ -96,9 +99,10 @@ class CaseOrderController extends Controller
         $CaseOrder->status = 201;
         $CaseOrder->app_pay_type = $Request->app_pay_type;
         $CaseOrder->compact_url  = $Request->compact_url;
-        if ($Request->has('times')) {
+        if ($Request->app_pay_type === 'installment') {
             $CaseOrder->times= $Request->times;
         }
+
         return $CaseOrder->save() ? $this->responseSuccess() : $this->responseFail();
     }
 

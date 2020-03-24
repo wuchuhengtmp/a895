@@ -68,6 +68,13 @@ class CheckPayTimes extends Base
                         case 101;
                             return $fail('您已经提交支付申请，审核期间请忽重复提交');
                     }
+                    $HasPrePaytime = (new PayTimesModel())->where('order_id', $PayTime->order_id)
+                        ->where('id', '<', $PayTime->id)
+                        ->first();
+                    if ($HasPrePaytime && $HasPrePaytime->status !== 100)
+                    {
+                        return $fail('您上个分期未申请通过，请忽申请下一个分期');
+                    }
                 }
             ]
         ];

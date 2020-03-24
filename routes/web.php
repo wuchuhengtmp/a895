@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/test', 'TestController@index');
+Route::get('shares/{user_id}', 'IndexController@shareShow');
+Route::post('shares/{user_id}', 'IndexController@shareShow');

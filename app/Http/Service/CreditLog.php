@@ -24,16 +24,18 @@ class CreditLog extends Base
         $sign_list = (new CreditLogic())->getSignDaysByUserId($user_id);
         $credit_list = (new UsersLogic())->getCreditList(); 
         $key = count($sign_list);
+        
         $credit = $credit_list[$key]['credit'];
         $CreditLogModel = new CreditLogModel();
         $CreditLogModel->title = '签到';
-        $CreditLogModel->total = $credit;
+        $CreditLogModel->total = (int) $credit;
         $CreditLogModel->status = 1;
         $CreditLogModel->user_id= $user_id;
-        $CreditLogModel->save();
+        $is_save = $CreditLogModel->save();
         $User = UsersModel::where('id', $user_id)->first();
         $User->credit += $credit;
         $User->save();
     }
+
 } 
 

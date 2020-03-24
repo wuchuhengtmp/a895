@@ -175,7 +175,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\EasySmsServiceProvider::class,
-        Overtrue\LaravelFilesystem\Qiniu\QiniuStorageServiceProvider::class
+        Overtrue\LaravelFilesystem\Qiniu\QiniuStorageServiceProvider::class,
+        Barryvdh\Debugbar\ServiceProvider::class,
+        zgldh\QiniuStorage\QiniuFilesystemServiceProvider::class
     ],
 
     /*

@@ -7,7 +7,9 @@ use App\Model\{
     CaseLikes,
     CaseComments,
     FavoriteCase,
-    Cases
+    Cases,
+    Cases as CaseModel,
+    FavoriteCase as FavoriteCaseModel
 };
 use App\Http\Validate\{
     CheckLocation,
@@ -41,11 +43,47 @@ class CasesController extends Controller
     public function index(Request $Request)
     {
         (new CheckLocation())->gocheck();
-        $where_map = $Request->has('case_category_id') ? 'case_category_id = ' . $Request->case_category_id : null;
-        $page_list = (new CasesService())->getPageList(
-            ['location' => $Request->location], $where_map
+
+        list($longitude, $latitude) = explode(',', $Request->location);
+        $Page = CaseModel::OrderBy('id', 'DESC')
+            ->select(['id', 'clickes', 'longitude', 'latitude', 'designer_id', 'thumb_url']);
+        if ($Request->case_category_id) {
+            $Page = $Page->where('case_category_id', '=', $Request->case_category_id);
+        }
+        if ($Request->city_code){
+            $Page = $Page->where('city_code', '=', $Request->city_code);
+        }
+        $Page = $Page->paginate(10);
+
+        $Page->each(function($item, $key) use ($longitude, $latitude){
+            $item->designer_name = $item->designer->name;
+            $item->avatar = Storage::disk('admin')->url($item->designer->avatar);
+            $item->distance = get_distance(
+                $longitude,
+                $latitude,
+                $item->longitude, 
+                $item->latitude,
+                2
+            ) . 'Km';
+            $Favorite = FavoriteCaseModel::where('user_id', $this->user()->id)
+                ->where('case_id', $item->id)
+                ->get();
+            $item->is_favorite = $Favorite->isNotEmpty() ? 1 : 0;
+            unset($item->designer,
+                $item->designer_id,
+                $item->longitude,
+                $item->latitude
+            );
+        });
+        
+        $page_data = $Page->toArray();
+        return $this->responseSuccessData(
+            [
+                'list'     => $page_data['data'],
+                'total'    => $page_data['total'],
+                'lastpage' => $Page->lastPage()
+            ]
         );
-        return $this->responseSuccessData($page_list);
     }
 
     /**
@@ -98,6 +136,7 @@ class CasesController extends Controller
         $Case->total_favorites = $FavoriteCase->getCountByCaseId($Case->id);
         // 是否收藏
         $Case->is_favorite = $FavoriteCase->isFavorite($case_id, $this->user()->id);
+        $Case->distance .= 'Km';
         return $this->responseSuccessData($Case->toArray());
     }
 
@@ -109,32 +148,61 @@ class CasesController extends Controller
      */
     public function like(Request $Request, CaseLikes $CaseLikes)
     {
-        $case_id= $Request->route('id');
-        $that  = $this;
-        $CheckResult = Validator::make(['case_id' => $case_id], [
-            'case_id' => [
-                'required',
-                'exists:cases,id',
-                function ($attribute, $value, $fail) use ($CaseLikes, $that) {
-                    if ($CaseLikes->where('case_id', $value)
-                        ->where('user_id', $that->user()->id)
-                        ->get()->isNotEmpty()) {
-                          return $fail('您已经点赞过了');
+        if ($Request->is_check == 1) {
+            $case_id= $Request->route('id');
+            $that  = $this;
+            $CheckResult = Validator::make(['case_id' => $case_id], [
+                'case_id' => [
+                    'required',
+                    'exists:cases,id',
+                    function ($attribute, $value, $fail) use ($CaseLikes, $that) {
+                        if ($CaseLikes->where('case_id', $value)
+                            ->where('user_id', $that->user()->id)
+                            ->get()->isNotEmpty()) {
+                              return $fail('您已经点赞过了');
+                        }
                     }
-                }
-            ]
-        ], [
-            'case_id.required' => '项目不能为空',
-            'case_id.exists' => '没有这个项目'
-        ]);
-        if ($CheckResult->fails()) {
-            throw new BaseException([
-                'msg' => $CheckResult->errors()->first()
+                ]
+            ], [
+                'case_id.required' => '项目不能为空',
+                'case_id.exists' => '没有这个项目'
             ]);
+            if ($CheckResult->fails()) {
+                throw new BaseException([
+                    'msg' => $CheckResult->errors()->first()
+                ]);
+            }
+            // 点赞
+            $is_like_ok = $CaseLikes->like($case_id, $this->user()->id);
+            return $is_like_ok ? $this->responseSuccess() : $this->responseFail();
+        } else if($Request->is_check == 0) {
+            $case_id= $Request->route('id');
+            $that  = $this;
+            $CheckResult = Validator::make(['case_id' => $case_id], [
+                'case_id' => [
+                    'required',
+                    'exists:cases,id',
+                    function ($attribute, $value, $fail) use ($CaseLikes, $that) {
+                        if ($CaseLikes->where('case_id', $value)
+                            ->where('user_id', $that->user()->id)
+                            ->get()->isEmpty()) {
+                              return $fail('您并没有点赞该项目');
+                        }
+                    }
+                ]
+            ], [
+                'case_id.required' => '项目不能为空',
+                'case_id.exists' => '没有这个项目'
+            ]);
+            if ($CheckResult->fails()) {
+                throw new BaseException([
+                    'msg' => $CheckResult->errors()->first()
+                ]);
+            }
+            // 取消点赞
+            $is_delete = $CaseLikes->destroyLike($case_id, $this->user()->id);
+            return $is_delete ? $this->responseSuccess() : $this->responseFail();
         }
-        // 点赞
-        $is_like_ok = $CaseLikes->like($case_id, $this->user()->id);
-        return $is_like_ok ? $this->responseSuccess() : $this->responseFail();
     } 
 
     public function destroyLike(Request $Request, CaseLikes $CaseLikes)
@@ -174,34 +242,63 @@ class CasesController extends Controller
      */
     public function favorite(Request $Request, FavoriteCase $FavoriteCase)
     {
-        $case_id= $Request->route('id');
-        $that  = $this;
-        $CheckResult = Validator::make(['case_id' => $case_id], [
-            'case_id' => [
-                'required',
-                'exists:cases,id',
-                function ($attribute, $value, $fail) use ($FavoriteCase, $that) {
-                    $is_favorite = $FavoriteCase->where('case_id', $value)
+        if ($Request->is_check == 1) {
+            $case_id= $Request->route('id');
+            $that  = $this;
+            $CheckResult = Validator::make(['case_id' => $case_id], [
+                'case_id' => [
+                    'required',
+                    'exists:cases,id',
+                    function ($attribute, $value, $fail) use ($FavoriteCase, $that) {
+                        $is_favorite = $FavoriteCase->where('case_id', $value)
                             ->where('user_id', $that->user()->id)
                             ->get()
                             ->isNotEmpty();
-                    if ( $is_favorite) {
-                          return $fail('您已经收藏过了');
+                        if ( $is_favorite) {
+                            return $fail('您已经收藏过了');
+                        }
                     }
-                }
             ]
-        ], [
-            'case_id.required' => '项目不能为空',
-            'case_id.exists' => '没有这个项目'
-        ]);
-        if ($CheckResult->fails()) {
-            throw new BaseException([
-                'msg' => $CheckResult->errors()->first()
+            ], [
+                'case_id.required' => '项目不能为空',
+                'case_id.exists' => '没有这个项目'
             ]);
+            if ($CheckResult->fails()) {
+                throw new BaseException([
+                    'msg' => $CheckResult->errors()->first()
+                ]);
+            }
+            // 收藏
+            $is_favorite = $FavoriteCase->favorite($case_id, $this->user()->id);
+            return $is_favorite ? $this->responseSuccess() : $this->responseFail();
+        } else {
+            $case_id= $Request->route('id');
+            $that  = $this;
+            $CheckResult = Validator::make(['case_id' => $case_id], [
+                'case_id' => [
+                    'required',
+                    'exists:cases,id',
+                    function ($attribute, $value, $fail) use ($FavoriteCase, $that) {
+                        if ($FavoriteCase->where('case_id', $value)
+                            ->where('user_id', $that->user()->id)
+                            ->get()->isEmpty()) {
+                                return $fail('您并没有收藏该项目');
+                            }
+                    }
+            ]
+            ], [
+                'case_id.required' => '项目不能为空',
+                'case_id.exists' => '没有这个项目'
+            ]);
+            if ($CheckResult->fails()) {
+                throw new BaseException([
+                    'msg' => $CheckResult->errors()->first()
+                ]);
+            }
+            // 取消收藏
+            $is_delete = $FavoriteCase->destroyFavorite($case_id, $this->user()->id);
+            return $is_delete ? $this->responseSuccess() : $this->responseFail();
         }
-        // 收藏
-        $is_favorite = $FavoriteCase->favorite($case_id, $this->user()->id);
-        return $is_favorite ? $this->responseSuccess() : $this->responseFail();
     }
 
     /**
@@ -212,32 +309,6 @@ class CasesController extends Controller
      */
     public function destroyFavorite(Request $Request, FavoriteCase $FavoriteCase)
     {
-        $case_id= $Request->route('id');
-        $that  = $this;
-        $CheckResult = Validator::make(['case_id' => $case_id], [
-            'case_id' => [
-                'required',
-                'exists:cases,id',
-                function ($attribute, $value, $fail) use ($FavoriteCase, $that) {
-                    if ($FavoriteCase->where('case_id', $value)
-                        ->where('user_id', $that->user()->id)
-                        ->get()->isEmpty()) {
-                          return $fail('您并没有收藏该项目');
-                    }
-                }
-            ]
-        ], [
-            'case_id.required' => '项目不能为空',
-            'case_id.exists' => '没有这个项目'
-        ]);
-        if ($CheckResult->fails()) {
-            throw new BaseException([
-                'msg' => $CheckResult->errors()->first()
-            ]);
-        }
-        // 取消收藏
-        $is_delete = $FavoriteCase->destroyFavorite($case_id, $this->user()->id);
-        return $is_delete ? $this->responseSuccess() : $this->responseFail();
     }
 
     /**
@@ -326,6 +397,7 @@ class CasesController extends Controller
             $return_result['list'][] = $tmp;
         }
         $return_result['total'] = $Page_list->total();
+        $return_result['lastpage'] = $Page_list->lastPage();
         return $this->responseSuccessData($return_result);
     }
 
@@ -339,28 +411,30 @@ class CasesController extends Controller
             'total' =>0
         ];
         $Cases = $CaseModel->where('is_commend', 1)
-            ->with(['designer', 'favorites'])
+            ->with(['designer', 'likes'])
             ->select(['id', 'designer_id', 'thumb_url', 'title', 'clickes', 'thumb_type'])
             ->paginate(10);
         if (!$Cases->isEmpty()) {
             $Cases->each(function(&$el) use(&$return_data){
                 if ($el->thumb_type === 'image') {
-                    $el->thumb_url = Storage::disk('img')->url($el->thumb_url);
+                    $el->thumb_url = get_absolute_url($el->thumb_url);
                 }
                 $el->avatar = Storage::disk('img')->url($el->designer->avatar);
                 $el->name = $el->designer->name;
-                $el->favorite_count = $el->favorites->count();
+                $el->likes_count = $el->likes->count();
                 $has_favorite = FavoriteCase::where('user_id', $this->user()->id)
                     ->where('case_id', $el->id)->first();
+                $has_likes = CaseLikes::where('user_id', $this->user()->id)
+                    ->where('case_id', $el->id)->first();
                 $el->is_favorite = $has_favorite ? true : false;
-                unset($el->designer, $el->favorites);
+                $el->is_like = $has_likes ? true : false;
+                unset($el->designer, $el->likes);
                 $return_data['list'][] = $el->toArray();
             });
         }
-        return $this->responseSuccessData([
-            'list'  => $return_data['list'],
-            'total' => $Cases->total(),
-        ]);
+        $return_data['total']  = $Cases->total();
+        $return_data['lastpage']  = $Cases->lastPage();
+        return $this->responseSuccessData( $return_data);
     }
 }
 

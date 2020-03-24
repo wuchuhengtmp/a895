@@ -44,13 +44,20 @@ $api->version('v1', [
 
 
     $api->post('avatar','MemberPictureController@uploadAvatar');
+    
+    $api->get('pays/wechat/natify', 'PayController@wxNotify');
+    $api->post('pays/wechat/natify', 'PayController@wxNotify');
 
-    $api->patch('pay/wx_notify', 'PayController@wxNotify');
-    $api->patch('pay/alipay_notify', 'PayController@aliPayNotify');
+    $api->get('pays/wechat/case_order/natify', 'PayController@wxCaseOrderNotify');
+    $api->post('pays/wechat/case_order/natify', 'PayController@wxCaseOrderNotify');
+
 
     $api->get('cases/categores', 'CasesController@categoryIndex');
 
     $api->get('calculate', 'CalculateController@index');
+    $api->get('about_us/categores', 'MeConfigController@aboutUs');
+    $api->get('about_us/{type}', 'MeConfigController@aboutUsList');
+    $api->get('designeres/{id}', 'DesignerController@show');
 
        // 需要 token 验证的接口
     $api->group(['middleware' => 'api.auth'], function($api) {
@@ -58,13 +65,13 @@ $api->version('v1', [
         $api->get('cases/recomments', 'CasesController@recommentShow');
         $api->get('cases/city_codes/{city_code}', 'CasesController@searchByCityCode');
         $api->get('cases/{id}', 'CasesController@show')->where('id', '[0-9]+');
-        $api->post('cases/{id}/patch_like', 'CasesController@like');
-        $api->post('cases/{id}/del_like', 'CasesController@destroyLike');
-        $api->post('cases/{id}/patch_favorite', 'CasesController@favorite');
-        $api->post('cases/{id}/del_favorite', 'CasesController@destroyFavorite');
+        $api->post('cases/{id}/like', 'CasesController@like');
+        /* $api->post('cases/{id}/del_like', 'CasesController@destroyLike'); */
+        $api->post('cases/{id}/favorite', 'CasesController@favorite');
+        /* $api->post('cases/{id}/del_favorite', 'CasesController@destroyFavorite'); */
         $api->post('cases/{id}/comments', 'CasesController@saveComment');
         $api->get('cases/orders/{id}', 'CaseOrderController@show');
-        $api->put('cases/orders/{id}/application', 'CaseOrderController@update');
+        $api->post('cases/orders/{id}/application', 'CaseOrderController@update');
         $api->get('cases/orders/{order_id}/pay_times', 'PaytimesController@index');
         $api->post('cases/orders/{order_id}/pay_times/{id}/pay', 'PaytimesController@update');
         $api->post('cases/orders/{id}/pay', 'CaseOrderController@pay');
@@ -76,8 +83,6 @@ $api->version('v1', [
         $api->post('signes', 'SignesController@store') ;
 
         // 配置
-        $api->get('about_us/categores', 'MeConfigController@aboutUs');
-        $api->get('about_us/{type}', 'MeConfigController@aboutUsList');
         $api->post('feedback', 'MeConfigController@feedback');
         $api->post('patch_userpwd', 'MeConfigController@userPwdUpdate');
         $api->post('patch_transfer_pwd', 'MeConfigController@transferPwd');
@@ -94,16 +99,18 @@ $api->version('v1', [
         // 我的收藏
         $api->get('favorite_cases', 'UsersController@getCollectionList');
         $api->get('favorite_cases/{id}', 'UsersController@getCollectionInfo');
-        $api->post('del_favorite_cases/{id}', 'UsersController@collectionDelete');
+        $api->post('cases/del_favorite', 'UsersController@collectionDelete');
 
         // 积分
-        $api->get('credits', 'MeCreditController@getTaskList');
-        $api->post('patch_credits', 'MeCreditController@transferAccounts');
         $api->get('credits', 'MeCreditController@meCreditList');
+        $api->post('patch_credits', 'MeCreditController@transferAccounts');
+        $api->get('meCredit', 'MeCreditController@meCreditList');
+
+        $api->post('phone', 'UsersController@resetPhone');
 
         // 商城 
         $api->get('goods', 'MallController@getGoodsList');
-        $api->get('goods/{id}', 'MallController@getGoodsInfo')
+        $api->get('goods/{id}', 'MallController@show')
             ->where('id', '[0-9]+');
         $api->post('goods/{id}/orders', 'MallController@addOrder')
             ->where('id', '[0-9]+');
@@ -115,9 +122,12 @@ $api->version('v1', [
         $api->post('goods/orders/{id}/receive', 'GoodsOrderController@receive');
         $api->post('del_goods/orders/{id}', 'GoodsOrderController@destroy')->where('id', '[0-9]+');
         $api->post('orders/refund/{id}', 'GoodsOrderController@refundSave')->where('id', '[0-9]+');
+        $api->post('goods/orders/{id}/repay', 'GoodsOrderController@repay')->where('id', '[0-9]+');
 
         // 我的订单
         $api->get('me/address/default', 'UsersController@showDefefaultAddress');
+
+        $api->get('share', 'UsersController@share');
     });
 
     $api->get('cases/{id}/comments', 'CasesController@contentIndex');
@@ -126,12 +136,14 @@ $api->version('v1', [
     // 商城幻灯片
     $api->get('goods/ad', 'MallController@getAd');
 
+    $api->get('test', 'TestController@test');
+
     // 商品评论
     $api->get('goods/{id}/comments', 'MallController@showComments');
 
     // 第三方登录
     $api->post('socials/{social_type}/authorizations', 
         'AuthorizationsController@socialStore');
-    $api->get('test', 'TestController@index');
+
 });
 

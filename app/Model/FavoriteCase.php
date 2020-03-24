@@ -53,4 +53,10 @@ class FavoriteCase extends Model
             ->delete();
         return $is_delete ? true: false;
     }
+
+    public function case()
+    {
+        return $this->hasOne(Cases::class, 'id', 'case_id');
+    }
+
 }

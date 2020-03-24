@@ -64,25 +64,46 @@ return [
             'url' => env('AWS_URL'),
         ],
 
-        'admin' => [
-            'driver' => 'local',
-            'root' => public_path('uploads'),
-            'visibility' => 'public',
-            'url' => env('APP_URL').'/uploads',
-        ],
-        'img' => [
-            'driver' => 'local',
-            'root' => public_path('uploads').'/images',
-            'visibility' => 'public',
-            'url' => env('APP_URL').'/uploads',
-        ],
-        'qiniu' => [
-            'driver'     => 'qiniu',
-            'access_key' => env('QINIU_ACCESS_KEY'),
-            'secret_key' => env('QINIU_SECRET_KEY'),
-            'bucket'     => env('QINIU_BUCKET'),
-            'domain'     => env('QINIU_DOMAIN'),
-        ],
+	'img' => [
+	    'driver'  => 'qiniu',
+	    'domains' => [
+                'default'   =>  env('QINIU_DOMAIN'), //你的七牛域名
+                'https'     => 'dn-yourdomain.qbox.me',         //你的HTTPS域名
+                'custom'    => 'static.abc.com',                //Useless 没啥用，请直接使用上面的 default 项
+	    ],
+	    'access_key' => env('QINIU_ACCESS_KEY'),
+	    'secret_key' => env('QINIU_SECRET_KEY'),
+	    'bucket'     => env('QINIU_BUCKET'),
+	    'access'    => 'public',  //空间访问控制 public 或 private
+	    'hotlink_prevention_key' => 'afc89ff8bd2axxxxxxxxxxxxxxbb', // CDN 时间戳防盗链的 key。 设置为 null 则不启用本功能。
+	],
+
+	'admin' => [
+	    'driver'  => 'qiniu',
+	    'domains' => [
+		'default'   =>  env('QINIU_DOMAIN'), //你的七牛域名
+		'https'     => 'dn-yourdomain.qbox.me',         //你的HTTPS域名
+                'custom'    => 'static.abc.com',                //Useless 没啥用，请直接使用上面的 default 项
+	    ],
+	    'access_key' => env('QINIU_ACCESS_KEY'),
+	    'secret_key' => env('QINIU_SECRET_KEY'),
+	    'bucket'     => env('QINIU_BUCKET'),
+	    'access'    => 'public',  //空间访问控制 public 或 private
+	    'hotlink_prevention_key' => 'afc89ff8bd2axxxxxxxxxxxxxxbb', // CDN 时间戳防盗链的 key。 设置为 null 则不启用本功能。
+	],
+	'qiniu' => [
+	    'driver'  => 'qiniu',
+	    'domains' => [
+		'default'   =>  env('QINIU_DOMAIN'), //你的七牛域名
+		'https'     => 'dn-yourdomain.qbox.me',         //你的HTTPS域名
+                'custom'    => 'static.abc.com',                //Useless 没啥用，请直接使用上面的 default 项
+	    ],
+	    'access_key' => env('QINIU_ACCESS_KEY'),
+	    'secret_key' => env('QINIU_SECRET_KEY'),
+	    'bucket'     => env('QINIU_BUCKET'),
+	    'access'    => 'public',  //空间访问控制 public 或 private
+	    'hotlink_prevention_key' => 'afc89ff8bd2axxxxxxxxxxxxxxbb', // CDN 时间戳防盗链的 key。 设置为 null 则不启用本功能。
+	],
     ],
 
 ];

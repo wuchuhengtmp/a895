@@ -29,7 +29,7 @@ class CheckGoods extends Base
         'total' => [
             'required',
             'int',
-            'gt:1'
+            'gt:0'
         ],
         'pay_type' => [
             'required',

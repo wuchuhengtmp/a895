@@ -47,21 +47,21 @@ class Mall extends Base
      */
     public function getGoodsInfo(int $id)
     {
-        $info= GoodsModel::select('title','tags','content','credit','price','thumb')->where('id',$id)->first();
+        $info= GoodsModel::select('id', 'status', 'title','tags','content','credit','price','thumb')->where('id',$id)->first();
         if(!$info){
             throw new SystemErrorException([
                 'msg' => '该商品不存在'
             ]);
         }
         $info['thumb'] = env('APP_URL').'/uploads/'.$info['thumb'];
-        $userEvaluate = UserEvaluateModel::select('user_id','star','content as evaluate_content','img','created_at as time')
-            ->where('goods_id',$id)->get()->toArray();
-        if(!$userEvaluate){
-            $userEvaluate = '暂无评论';
-        }else{
-            $userEvaluate = (new EvaluateLogic())->getEvaluate($userEvaluate);
-        }
-        $info['userEvaluate'] = $userEvaluate;
+        /* $userEvaluate = UserEvaluateModel::select('user_id','star','content as evaluate_content','img','created_at as time') */
+        /*     ->where('goods_id',$id)->get()->toArray(); */
+        /* if(!$userEvaluate){ */
+        /*     $userEvaluate = '暂无评论'; */
+        /* }else{ */
+        /*     $userEvaluate = (new EvaluateLogic())->getEvaluate($userEvaluate); */
+        /* } */
+        /* $info['userEvaluate'] = $userEvaluate; */
         return $info->toArray();
     }
     
@@ -82,12 +82,17 @@ class Mall extends Base
                 $tmp['id'] = $Comment->id;
                 $tmp['nickname'] = $Comment->user->nickname;
                 $tmp['avatar'] = Storage::disk('img')->url($Comment->user->avatar);
-                $tmp['img'] = $Comment->img;
+                if (is_json($Comment->img)) {
+                    $tmp['img'] = json_decode($Comment->img, true);
+                } else  {
+                    $tmp['img'] = [$Comment->img];
+                }
                 $tmp['stars'] = $Comment->stars;
                 $tmp['created_at'] = format_time($Comment->created_at->timestamp);
                 $return_data['list'][] = $tmp;
             }
             $return_data['total'] = $Comments->total();
+            $return_data['lastpage'] = $Comments->lastPage();
         }
         return $return_data;
     }

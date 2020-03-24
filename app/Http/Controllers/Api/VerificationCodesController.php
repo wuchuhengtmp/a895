@@ -21,7 +21,7 @@ class VerificationCodesController extends Controller
     public function store(Request $Request)
     {
         (new CheckPhone())->gocheck();
-        (new CheckPhoneIsExists())->gocheck();
+        /* (new CheckPhoneIsExists())->gocheck(); */
         $cache_key = (new SMS())->sendRegisterCodeByPhone($Request->phone);
         return $this->responseSuccessData(['validate_key' => $cache_key]);
     }

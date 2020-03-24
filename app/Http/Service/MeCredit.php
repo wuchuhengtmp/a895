@@ -44,7 +44,7 @@ class MeCredit extends Base
     {
         $Request = request();
         $user_info= UserModel::select('credit','transfer_pwd')->where('id',$user_id)->first();
-        $get_user_info= UserModel::select('id','credit')->where('phone',$Request->phone)->first();
+        $get_user_info= UserModel::select('id','credit')->where('id',$Request->to_id)->first();
         if(!$get_user_info){
             throw new SystemErrorException([
                 'msg' => '该用户不存在'
@@ -80,13 +80,13 @@ class MeCredit extends Base
      */
     public function meCreditList(int $user_id)
     {
-        $List= CreditLogModel::select('title','total','status')->where('user_id',$user_id)->orderBy('id','desc')->get();
-        if(!$List){
-            throw new SystemErrorException([
-                'msg' => '暂无积分记录'
-            ]);
-        }
-        return $List->toArray();
+        $List= CreditLogModel::select('title','total','status')->where('user_id',$user_id)->orderBy('id','desc')
+            ->paginate(10);
+        return [
+            'list'     => $List->items(),
+            'total'    => $List->total(),
+            'lastpage' => $List->lastpage() 
+        ];
     }
 
 }

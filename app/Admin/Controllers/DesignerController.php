@@ -29,6 +29,12 @@ class DesignerController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('name', __('Name'));
+        $grid->column('service_city_code', __('service_city_code'))->editable();
+        $grid->column('min_price', __('min_price'))->editable();
+        $grid->column('max_price', __('max_price'))->editable();
+        $grid->column('prepay_price', __('prepay_price'))->editable();
+        $grid->column('is_dispatch', __('is_dispatch'))->editable();
+        
         $grid->column('longitude', __('Longitude'));
         $grid->column('latitude', __('Latitude'));
         $grid->column('avatar', __('Avatar'))->display(function(){

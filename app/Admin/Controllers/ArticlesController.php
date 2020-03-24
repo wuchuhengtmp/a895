@@ -96,20 +96,20 @@ class ArticlesController extends AdminController
             ->default(1)
             ->rules('required');
         $form->simditor('content', __('Content'))->rules('required');
-        $form->select('thumb_type', __('Thumb type'))
-            ->options(['image' => '图片', 'video' => '视频'])
-            ->default('image')
-            ->rules('required');
-        if ($this->is_store) {
-            if (request()->thumb_type === 'image') {
-                $form->image('thumb_url', __('thumb_url'))->uniqueName()->rules('required');
-            } else if (request()->thumb_type === 'video') {
-                $form->file('thumb_video_url', __('Thumb video url'))->uniqueName()->rules('required');
-            }
-        } else {
-            $form->image('thumb_url', __('thumb_url'))->uniqueName();
-            $form->file('thumb_video_url', __('Thumb video url'))->uniqueName();
-        }
+        /* $form->select('thumb_type', __('Thumb type')) */
+        /*     ->options(['image' => '图片', 'video' => '视频']) */
+        /*     ->default('image') */
+        /*     ->rules('required'); */
+        /* if ($this->is_store) { */
+        /*     if (request()->thumb_type === 'image') { */
+        /*         $form->image('thumb_url', __('thumb_url'))->uniqueName()->rules('required'); */
+        /*     } else if (request()->thumb_type === 'video') { */
+        /*         $form->file('thumb_video_url', __('Thumb video url'))->uniqueName()->rules('required'); */
+        /*     } */
+        /* } else { */
+        /*     $form->image('thumb_url', __('thumb_url'))->uniqueName(); */
+        /*     $form->file('thumb_video_url', __('Thumb video url'))->uniqueName(); */
+        /* } */
         $form->saved(function (Form $form) {
             if ($form->model()->thumb_type === 'video') {
                 $disk = Storage::disk('qiniu');

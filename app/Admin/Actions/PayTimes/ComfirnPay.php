@@ -33,8 +33,8 @@ class ComfirnPay extends RowAction
             }
             $model->caseOrder->save();
         }
-            return $this->response()->success('操作成功')->refresh();
         if ($model->save()) {
+            return $this->response()->success('操作成功')->refresh();
         } else {
             return $this->response()->error('操作失败')->refresh();
         }
