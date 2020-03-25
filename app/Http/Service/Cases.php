@@ -74,7 +74,7 @@ class Cases extends Base
     {
         list($longitude, $latitude) = explode(',', $params['location']);
         $Page = CaseModel::where('city_code', $params['city_code'])
-            ->where('community', 'like', "%" . $params['keyword'] . "%")
+            ->where('title', 'like', "%" . $params['keyword'] . "%")
             ->OrderBy('id', 'DESC')
             ->select(['id', 'clickes', 'longitude', 'latitude', 'designer_id'])
             ->paginate(10);

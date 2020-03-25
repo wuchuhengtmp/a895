@@ -322,6 +322,11 @@
     "prepay_price": "预约金",
     "is_dispatch": "是否施工",
     "service_city_code" : "服务城市",
-    "redirection" : "跳转链接"
+    "redirection" : "跳转链接",
+    "express_no"  : "物流单号",
+    "express_co" : "物流公司",
+    "pay_type" : "支付方式",
+    "order_status" : "订单状态",
+    "created_at" : "创建时间"
  }
 

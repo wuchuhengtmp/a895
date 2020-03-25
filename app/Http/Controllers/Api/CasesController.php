@@ -46,17 +46,20 @@ class CasesController extends Controller
 
         list($longitude, $latitude) = explode(',', $Request->location);
         $Page = CaseModel::OrderBy('id', 'DESC')
-            ->select(['id', 'clickes', 'longitude', 'latitude', 'designer_id', 'thumb_url']);
+            ->select(['id', 'clickes', 'title', 'longitude', 'latitude', 'designer_id', 'thumb_url']);
         if ($Request->case_category_id) {
             $Page = $Page->where('case_category_id', '=', $Request->case_category_id);
         }
         if ($Request->city_code){
             $Page = $Page->where('city_code', '=', $Request->city_code);
         }
+        if ($Request->keyword){
+            $Page = $Page->where('title', 'like', "%".$Request->keyword."%");
+        }
         $Page = $Page->paginate(10);
 
         $Page->each(function($item, $key) use ($longitude, $latitude){
-            $item->designer_name = $item->designer->name;
+            $item->designer_name = $item->title;
             $item->avatar = Storage::disk('admin')->url($item->designer->avatar);
             $item->distance = get_distance(
                 $longitude,

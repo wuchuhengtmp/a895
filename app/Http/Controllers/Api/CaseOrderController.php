@@ -19,6 +19,7 @@ class CaseOrderController extends Controller
 {
     public function index(Request $Request, CaseOrder $CaseOrder)
     {
+        $Order = $CaseOrder->where('id', 144)->first();
         (new CheckCaseOrder())->scene('get_casse_orders')->gocheck();
         $return_arr = [
             'list'  => [],

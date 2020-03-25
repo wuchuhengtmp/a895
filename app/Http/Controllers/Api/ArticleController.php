@@ -10,6 +10,7 @@ use App\Model\{
 use Illuminate\Support\Facades\Storage;
 use App\Exceptions\Api\Base as BaseException;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Log;
 
 class ArticleController extends Controller
 {
@@ -21,7 +22,7 @@ class ArticleController extends Controller
     {
         $Categores = ArticleCategory::select(['id', 'name'])->get();
         $categores_list = $Categores->toArray();
-        $a = asort($categores_list);
+        asort($categores_list);
         $categores_list = array_merge($categores_list, [['id' => 0, 'name' => '全部']]);
         asort($categores_list);
         $categores_list = array_values($categores_list);
@@ -36,10 +37,11 @@ class ArticleController extends Controller
      */
     public function index(Request $Request)
     {
-        if ($Request->has('category_id') && $Request->category_id != 0) {
+        Log::info(request()->toArray());
+        if ($Request->has('categoery_id') && $Request->categoery_id != 0) {
             $Articles = Article::orderBy('id', 'DESC')
                 ->select(['id', 'title', 'thumb_type', 'thumb_url', 'clickes'])
-                ->where('category_id', $Request->category_id)
+                ->where('category_id', $Request->categoery_id)
                 ->paginate(10);
         } else {
             $Articles = Article::orderBy('id', 'DESC')

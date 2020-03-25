@@ -103,55 +103,7 @@ class CaseOrder extends Model
      */
     public function getStatusAttribute($status)
     { 
-        // 分期申请成功阶段尝试推向支付阶段
-        $is_next_step = false;
-        if ($this->app_pay_type === 'installment' && $status  == 200) {
-            foreach($this->payTimes as $PayTime) {
-                if ($PayTime->status !== 104)  {
-                    $is_next_step = true;
-                    break;
-                }
-            }
-        }
-        // 分期支付阶段
-        if ($this->app_pay_type == 'installment' && (in_array($status, [300, 301, 302, 303]) || $is_next_step)) {
-            $status = [
-                'be_pay'   => 0,
-                'paying'   => 0,
-                'fail_pay' => 0,
-                'over_pay' => 0,
-                'no_pay'   => 0,
-            ];
-            foreach($this->payTimes as $payTime) {
-                switch($payTime->status) {
-                case 100:
-                    $status['be_pay']   = 300;
-                    break;
-                case 101:
-                    $status['paying']   = 301;
-                    break;
-                case 102:
-                    $status['fail_pay'] = 302;
-                    break;
-                case 103:
-                    $status['over_pay'] = 303;
-                    break;
-                case 104:
-                    $status['no_pay']   = 301;
-                    break;
-                }
-            }
-            foreach ($status as $status_name) {
-                if ($status_name > 0){
-                    $this->status = $status_name;
-                    $this->save();
-                    return $status_name;
-                }
-            }
-        } else {
-            // 全款状态 
-            return $status; 
-        }
+        return $status; 
     }
 
     public  function  comment()

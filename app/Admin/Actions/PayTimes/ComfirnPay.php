@@ -4,6 +4,7 @@ namespace App\Admin\Actions\PayTimes;
 
 use Encore\Admin\Actions\RowAction;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Service\CaseOrder;
 
 class ComfirnPay extends RowAction
 {
@@ -21,19 +22,11 @@ class ComfirnPay extends RowAction
                 $model->reply = request()->reply;
                 break;
         }
-        // 全款订单 修改订单状态
-        if ($model->caseOrder->app_pay_type === 'total') {
-            switch(request()->status) {
-                case 100:
-                    $model->caseOrder->status = 300;
-                    break;
-                case 102:
-                    $model->caseOrder->status =  302;
-                    break;
-            }
-            $model->caseOrder->save();
-        }
+        $model->caseOrder->reply = request()->reply;
+        
         if ($model->save()) {
+            $model->caseOrder->status = (new CaseOrder())->getStatusById($model->caseOrder->id);
+            $model->caseOrder->save();
             return $this->response()->success('操作成功')->refresh();
         } else {
             return $this->response()->error('操作失败')->refresh();

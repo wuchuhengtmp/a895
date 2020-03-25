@@ -226,6 +226,9 @@ class GoodsOrderController extends Controller
     public function receive(Request $Request, Order $OrderModel)
     {
         $Order = $OrderModel->where('id', $Request->id)->first();
+        if ($Order->status < 2 ) {
+            throw new BaseException(['msg' => '商家未发货']);
+        }
         $Order->status = 3;
         return $Order->save() ? $this->responseSuccess() : $this->responseFail();
     }

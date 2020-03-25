@@ -39,8 +39,8 @@ class MemberPicture extends Base
                 $relative_path  = time() . rand(1, 99999) . '.' . $mime_list[$mime_type];
                 $path = Storage::disk('img')->path($relative_path);
                 is_dir(dirname($path)) || mkdir(dirname($path), 0700, true);
-                file_put_contents($path, $file_content);
-                return ['avatar' => 'images/' . $relative_path];
+                Storage::disk('img')->put($relative_path, $file_content);
+                return ['avatar' =>  $relative_path];
             } else {
                 throw new SystemErrorException([
                     'msg' => '图片格式有误！'

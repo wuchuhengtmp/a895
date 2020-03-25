@@ -232,7 +232,7 @@ class CheckCaseOrder extends Base
         'design_stars.in' => '设计分为1-5',
         'material_stars.required' => '材料分不能为空',
         'material_stars.in' => '材料分为1-5',
-        'content.required' => '内容就能为空',
+        'content.required' => '内容不能为空',
         'status.required'  => '请传入订单状态',
         'status.in' => '订单状态为: doing, finished 或 feedback'
     ];

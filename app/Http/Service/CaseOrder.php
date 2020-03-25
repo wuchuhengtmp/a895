@@ -220,9 +220,12 @@ class  CaseOrder extends Base
     public function getStatusById($order_id)
     {
         $Order = (new CaseOrderModel())->where('id', $order_id)->first();
-        if ($Order->app_pay_type == 'total'){
+        if ($Order->app_pay_type == 'total' && $Order->status <= 200){
             return $Order->status;
         } else {
+            if(!(new PayTimesModel())->where('order_id', $order_id)->count()) {
+                return $Order->status;
+            }
             $Paytime = (new PayTimesModel())->where('order_id', $order_id)
                 ->where('status', '<>', 100)
                 ->orderBy('id', 'asc')
@@ -231,7 +234,7 @@ class  CaseOrder extends Base
                 return 300;
             } else {
                 switch($Paytime->status) {
-                case  101:
+                    case  101:
                     return 301;
                     case 102: return 302;
                     case  103: return 303;

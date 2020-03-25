@@ -110,6 +110,7 @@ class ArticlesController extends AdminController
         /*     $form->image('thumb_url', __('thumb_url'))->uniqueName(); */
         /*     $form->file('thumb_video_url', __('Thumb video url'))->uniqueName(); */
         /* } */
+        $form->image('thumb_url', __('thumb_url'))->uniqueName();
         $form->saved(function (Form $form) {
             if ($form->model()->thumb_type === 'video') {
                 $disk = Storage::disk('qiniu');

@@ -36,6 +36,7 @@ class PayTimes extends Model
 
     public function getTotalPriceAttribute($value)
     {
+        return $value;
     }
 
     public function caseOrder()

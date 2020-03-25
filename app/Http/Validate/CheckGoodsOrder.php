@@ -85,7 +85,7 @@ class CheckGoodsOrder extends Base
                     } else if ($HasData->status == 0) {
                         return $fail('订单未支付，不能查询物流');
                     } else if ($HasData->status == 1) {
-                        return $fail('订单未发货(已经支付)，不能查询物流');
+                        return $fail('订单未发货');
                     }
                     
                 }

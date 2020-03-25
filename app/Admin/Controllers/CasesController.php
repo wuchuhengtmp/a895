@@ -50,12 +50,14 @@ class CasesController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Cases());
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->like('title', __('title'));
+            $filter->between('created_at', __('created_at'))->datetime();
+        });
         $grid->column('id', __('Id'));
         $grid->column('title', __('Title'));
-        $grid->column('thumb_url', __('Thumb url'))->display(function(){
-            $img_url = get_absolute_url($this->thumb_url);
-	    return "<img src=' " . $img_url . " ' style='width:50px'/>";
-        });
+        $grid->column('thumb_url', __('Thumb url'))->lightbox();
         $grid->column('designer.name', __('Designer'));
         $grid->column('category.name', __('Case Category'));
         $grid->column('clickes', __('Clickes'));

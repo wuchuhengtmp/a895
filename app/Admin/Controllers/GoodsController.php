@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\Storage;
 
 class GoodsController extends AdminController
 {
+    
+    public function  __construct()
+    {
+        $Request = request();
+        if ($Request->has('subject_id')) {
+            $Subject = Subject::where('id', $Request->subject_id)->first();
+            $this->title = $Subject->subject;
+        }
+    }
+
     /**
      * Title for current resource.
      *
@@ -29,6 +39,7 @@ class GoodsController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Goods());
+        $grid->disableCreateButton();
         $grid->model()->where('subject_id', request()->subject_id);
         $grid->column('id', __('Id'));
         $grid->column('title', __('Title'));
@@ -102,4 +113,5 @@ class GoodsController extends AdminController
 
         return $form;
     }
+
 }

@@ -13,6 +13,7 @@ use App\Admin\Actions\CaseOrder\{
 };
 use Encore\Admin\Widgets\Table;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Service\CaseOrder as CaseOrderService;
 
 class CaseOrderController extends AdminController
 {
@@ -31,8 +32,11 @@ class CaseOrderController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new CaseOrder());
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->between('created_at', __('created_at'))->datetime();
+        });
         $grid->model()->where('status', '>', 0);
-
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableEdit();
@@ -56,7 +60,8 @@ class CaseOrderController extends AdminController
         $grid->column('name', "联系人");
         $grid->column('status')
             ->display(function($field) {
-                switch($field) {
+                $status = (new CaseOrderService())->getStatusById($this->id);
+                switch($status) {
                 case 100 :
                     return "已预约";
                 case 200:
@@ -182,8 +187,6 @@ class CaseOrderController extends AdminController
         $form->text('pay_type', __('Pay type'));
         $form->text('out_trade_no', __('Out trade no'));
         $form->text('prepay_id', __('Prepay id'));
-
         return $form;
     }
-
 }

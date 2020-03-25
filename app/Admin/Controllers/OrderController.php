@@ -34,6 +34,20 @@ class OrderController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Order());
+        $grid->filter(function($filter){
+            $filter->disableIdFilter();
+            $filter->equal('pay_type', __("pay_type"))->select(['wechat' => '微信支付']);
+            $filter->equal('status', __("order_status"))->select(
+                [
+                    '-1' => '订单关闭',
+                    '0' => '未支付',
+                    '1' => '待发货',
+                    '2' => '已发货',
+                    '3' => '完成'
+                ]
+            );
+            $filter->between('created_at', __('created_at'))->datetime();
+        });
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableEdit();
