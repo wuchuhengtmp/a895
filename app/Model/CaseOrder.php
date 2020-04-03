@@ -34,7 +34,9 @@ class CaseOrder extends Model
         'times',
         'app_pay_type',
         'reply',
-        'compact_url'
+        'compact_url',
+        'refund_content',
+        'refund_image',
     ];
 
     public function city()
@@ -103,7 +105,7 @@ class CaseOrder extends Model
      */
     public function getStatusAttribute($status)
     { 
-        return $status; 
+            return $status; 
     }
 
     public  function  comment()

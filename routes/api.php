@@ -78,6 +78,7 @@ $api->version('v1', [
         $api->post('cases/orders/{id}/patch_comment', 'CaseOrderController@saveComment');
         $api->get('cases/orders', 'CaseOrderController@index');
         $api->post('del_cases/orders/{id}', 'CaseOrderController@destroy');
+        $api->post('cases/orders/{id}/refund', 'CaseOrderController@refundStore');
 
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store') ;

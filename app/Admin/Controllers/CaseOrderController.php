@@ -36,7 +36,8 @@ class CaseOrderController extends AdminController
             $filter->disableIdFilter();
             $filter->between('created_at', __('created_at'))->datetime();
         });
-        $grid->model()->where('status', '>', 0);
+        $grid->model()->where('status', '>', 0)
+        ->where('status', '<', 500);
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableEdit();

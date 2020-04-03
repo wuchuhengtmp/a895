@@ -16,5 +16,5 @@ Route::get('/', function () {
 });
 
 Route::get('/test', 'TestController@index');
-Route::get('shares/{user_id}', 'IndexController@shareShow');
-Route::post('shares/{user_id}', 'IndexController@shareShow');
+Route::get('shares', 'IndexController@shareShow');
+Route::post('shares', 'IndexController@shareShow');

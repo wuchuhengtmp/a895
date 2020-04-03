@@ -10,6 +10,7 @@ use App\Model\{
 };
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Http\Service\CreditLog;
 use App\Exceptions\Api\{
     Base as BaseException,
     SystemErrorException
@@ -44,6 +45,27 @@ class User extends Base
             throw new SystemErrorException([
                 'msg' => '用户创建失败'
             ]);
+        }
+        // 记录邀请码
+        if ($Request->has('invite') && $Invite = (new UserModel())->where('id', $Request->invite)->first()) {
+            $User->invite = $Request->invite;
+            $User->credit = get_config('get_credit');
+            $User->save();
+            $CreditLog = new CreditLogModel();
+            $CreditLog->title = '受邀请获得';
+            $CreditLog->status = 1;
+            $CreditLog->user_id = $User->id;
+            $CreditLog->total = get_config('get_credit');            
+            $CreditLog->save();
+
+            $InviteCreditLog = new CreditLogModel();
+            $Invite->credit += get_config('user_credit');
+            $Invite->save();
+            $InviteCreditLog->title = '邀请好友获得';
+            $InviteCreditLog->status = 1;
+            $InviteCreditLog->user_id = $Invite->id;
+            $InviteCreditLog->total = get_config('user_credit');            
+            $InviteCreditLog->save();
         }
     }
 

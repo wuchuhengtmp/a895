@@ -2,12 +2,12 @@
 
 namespace App\Admin\Controllers;
 
-use App\Model\Order;
+use App\Model\CaseOrder as Order;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
-use App\Admin\Actions\Order\Refund;
+use App\Admin\Actions\CaseOrder\Refund;
 
 class RefundController extends AdminController
 {
@@ -26,38 +26,35 @@ class RefundController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Order());
-
         $grid->actions(function ($actions) {
             $actions->disableEdit();
             $actions->disableView();
             $actions->disableDelete();
-            if (!in_array($actions->row->status, [1])) {
+            if($actions->row->status != 500 ) {
                 $actions->add(new Refund());
             }
         });
-        $grid->model()->where('refund_status', '!=', 0);
+        $grid->model()->where('status', '>=', 500);
         $grid->column('id', __('Id'));
-        $grid->column('out_trade_no', __('Out trade no'));
-        $grid->column('refund_status', __('Refund status'))
-        ->display(function($refund_status){
-            switch($refund_status) {
-            case -1 :
-                return '失败';
-            case 1:
-                return '申请中';
-            case 2:
-                return '退款成功';
-            }
-        })
-        ->label([
-            -1 => 'info',
-            0 => 'success',
-            1 => 'warning',
-            2 => 'error'
-        ]);
-        $grid->column('content', __('Content'));
-        $grid->column('refund_thumb', __('Refund thumb'))->lightbox();
-        $grid->column('refund_reply', __('refund reply'));
+        $grid->column('title', __('title'));
+        $grid->column('refund_content', __('refund_content'));
+        $grid->column('reply', __('refund reply'));
+        $grid->column('status', __('status'))
+            ->display(function($field) {
+                switch($field) {
+                case 500 :
+                    return '成功';
+                case 501 :
+                    return '申请中';
+                case 502 :
+                    return '失败';
+                }
+            }) ->label([
+                500 => 'warning',
+                501 => 'success',
+                502 => 'success'
+            ]);
+        $grid->column('image', __('image'))->lightbox();
         $grid->column('created_at', __('Created at'));
 
         return $grid;
@@ -116,29 +113,6 @@ class RefundController extends AdminController
         $form = new Form(new Order());
 
         $form->text('out_trade_no', __('Out trade no'));
-        $form->number('user_id', __('User id'));
-        $form->number('goods_id', __('Goods id'));
-        $form->number('total', __('Total'));
-        $form->text('pay_type', __('Pay type'));
-        $form->text('address_info', __('Address info'));
-        $form->datetime('pay_at', __('Pay at'))->default(date('Y-m-d H:i:s'));
-        $form->switch('status', __('Status'));
-        $form->decimal('total_price', __('Total price'));
-        $form->number('total_credit', __('Total credit'));
-        $form->text('alipay_trade_no', __('Alipay trade no'));
-        $form->text('express_no', __('Express no'));
-        $form->text('title', __('Title'));
-        $form->text('prepay_id', __('Prepay id'));
-        $form->text('app_pay_sign', __('App pay sign'));
-        $form->text('goods_info', __('Goods info'));
-        $form->text('express_co', __('Express co'));
-        $form->number('goods_stars', __('Goods stars'));
-        $form->number('service_stars', __('Service stars'));
-        $form->textarea('refund_reply', __('Refund reply'));
-        $form->number('express_stars', __('Express stars'));
-        $form->number('is_comment', __('Is comment'));
-        $form->number('refund_status', __('Refund status'));
-        $form->textarea('content', __('Content'));
         $form->text('refund_thumb', __('Refund thumb'));
 
         return $form;

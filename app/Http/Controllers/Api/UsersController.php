@@ -35,7 +35,7 @@ class UsersController extends Controller
     public function store(Request $Request)
     {
         (new CheckPhoneRegister())->gocheck();
-        (new UserService())->registerStore();
+       ( new UserService())->registerStore();
         \Cache::forget(request()->validate_key); 
         return $this->responseSuccess();
     }
@@ -257,11 +257,11 @@ class UsersController extends Controller
             'title'        => get_config('SHARE_TITLE'),
             'img'          => get_config('SHARE_IMG'),
             'content'      => get_config('SHARE_CONTENT'),
-            'share_credit' => get_config('SHARE_CREDIT'),
-            'sub_credit' => get_config('SHARE_SUB_CREDIT'),
-            'my_share_url' => env('APP_URL') . '/shares/' . $this->user()->id,
+            'sub_credit'   => get_config('get_credit'),
+            'share_credit' => get_config('user_credit'),
+            'my_share_url' => env('APP_SHARE_URL') . '/?invite=' . $this->user()->id,
             'my_credites'  => User::where('id', $this->user()->id)->first()->credit,
-            'list'  => $share_users
+            'list'         => $share_users
         ]); 
     }
 }

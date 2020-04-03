@@ -10,6 +10,7 @@ use App\Http\Validate\{
 use App\Http\Service\{
     MeCredit as MeCreditService
 };
+use App\Exceptions\Api\Base as BaseException;
 
 class MeCreditController extends Controller
 {
@@ -31,6 +32,10 @@ class MeCreditController extends Controller
     public function transferAccounts(Request $Request)
     {
         (new CheckUserExists())->gocheck();
+        if(!$this->user()->transfer_pwd) {
+            throw new BaseException(['msg' => '请设置转账密码', 'code' =>403]);
+        }
+        
         (new MeCreditService())->transferAccounts($this->user()->id);
         return $this->responseSuccess();
     }

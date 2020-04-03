@@ -34,6 +34,9 @@ class CheckCaseOrder extends Base
             'int',
             'gt:0'
         ],
+        'image' => [
+            'required'
+        ],
         'room' => [
             'required',
         ],
@@ -140,7 +143,6 @@ class CheckCaseOrder extends Base
                             303 => '您已经申请成功了,请不要重复申请',
                             400 => '您已经申请成功了,请不要重复申请',
                         ];
-                        
                         return $fail($messages[$Order->status]);
                     }
                 }
@@ -155,12 +157,10 @@ class CheckCaseOrder extends Base
                             100 => '您还未提交合约，不能支付',
                             201 => '合约审查中，不能支付',
                             202 => '合约审查失败，不能支付',
-
                             300 => '您已支付成功了,请不要再次支付',
                             301 => '您正在支付中,请不要再来次支付',
                             400 => '订单已经支付完成，无需再次支付',
                         ];
-                        
                         return $fail($messages[$Order->status]);
                     }
                 }
@@ -168,14 +168,12 @@ class CheckCaseOrder extends Base
             'save_comment' => [
                 'id' => function($attribute, $value, $fail) {
                     $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
-
                     if ($Order->status === 400 ) {
                         return $fail('订单已评论');
                     }
                     if ($Order->status !== 300 ) {
                         return $fail('订单未完成');
                     }
-
                     if ($Order->comment) {
                         return $fail('订单已评论');
                     }
@@ -194,6 +192,18 @@ class CheckCaseOrder extends Base
                     $Order = Cases::where('id', $value)->first();
                     if (!$Order) {
                         return $fail('没有这个案例');
+                    }
+                }
+            ],
+            'refund_store' => [
+                'id' => function($attribute, $value, $fail) {
+                    $Order = $this->CaseOrderModel->where('id', $value)->where('user_id', $this->User()->id)->first();
+                    if (!$Order) {
+                        return $fail('没有这个订单');
+                    }
+                    switch($Order->status) {
+                        case 500: return $fail('已退款');break;
+                        case 501: return $fail('退款申请中');break;
                     }
                 }
             ]
@@ -234,7 +244,7 @@ class CheckCaseOrder extends Base
         'material_stars.in' => '材料分为1-5',
         'content.required' => '内容不能为空',
         'status.required'  => '请传入订单状态',
-        'status.in' => '订单状态为: doing, finished 或 feedback'
+        'status.in' => '订单状态为: doing, finished 或 feedback',
     ];
 
     /**
@@ -284,6 +294,11 @@ class CheckCaseOrder extends Base
         // 删除案例订单
         'delete_casse_order' => [
             'id'
-        ]
+        ],
+        // 退款申请 
+        'refund_store' => [
+            'id',
+            'content'
+        ],
     ];
 }

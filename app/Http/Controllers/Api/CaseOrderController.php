@@ -32,10 +32,10 @@ class CaseOrderController extends Controller
                 $status = [100, 200, 201, 202, 203, 301, 302, 303];
                 break;
             case 'finished':
-                $status = [300];
+                $status = [300, 400];
                 break;
             case 'feedback':
-                $status  = [400];
+                $status  = [500, 501, 502];
                 break;
         }
         $CaseOrders = $CaseOrder->whereIn('status', $status)
@@ -167,5 +167,21 @@ class CaseOrderController extends Controller
         } else {
             return $this->responseFail();
         }
+    }
+
+    /**
+     * 退款申请
+     *
+     */
+    public function refundStore(Request $Request, CaseOrder $CaseOrderModel)
+    {
+        (new CheckCaseOrder())->scene('refund_store')->gocheck();
+        $CaseOrder = $CaseOrderModel->where('id', $Request->id)->first();
+        $CaseOrder->status = 501;
+        $CaseOrder->refund_content = $Request->content;
+        if ($Request->has('refund_image')){
+            $CaseOrder->refund_image = $Request->refund_image;
+        }
+        return $CaseOrder->save() ? $this->responseSuccess() : $this->responseFail();
     }
 }

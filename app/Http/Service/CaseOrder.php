@@ -222,7 +222,9 @@ class  CaseOrder extends Base
         $Order = (new CaseOrderModel())->where('id', $order_id)->first();
         if ($Order->app_pay_type == 'total' && $Order->status <= 200){
             return $Order->status;
-        } else {
+        } else if($Order->status >= 500) { 
+            return $Order->status;
+        }else{
             if(!(new PayTimesModel())->where('order_id', $order_id)->count()) {
                 return $Order->status;
             }
@@ -241,7 +243,6 @@ class  CaseOrder extends Base
                     default: return 200;
                 }
             }
-            
         }
     }
 }
