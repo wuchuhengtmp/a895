@@ -14,45 +14,49 @@ class Credit
      */
     public function getSignDaysByUserId(int $user_id)
     {
+        $floor_date = date('Y-m-d', strtotime(date('Y-m-d')) - 7 * 24 * 60 * 60);
+        $yestoday = date('Y-m-d', time() - 24 * 60 * 60);
+        $HasYestodaySign = SignLogModel::where('user_id', $user_id)
+            ->whereBetween('created_at', [$yestoday . ' 00:00:00', $yestoday . ' 23:59:59'])
+            ->limit(1)
+            ->get();
+        if ($HasYestodaySign->isEmpty()) {
+            $HasTodaySign = SignLogModel::where('user_id', $user_id)
+                ->whereBetween('created_at', [date('Y-m-d'). ' 00:00:00', date('y-m-d'). ' 23:59:59'])
+                ->limit(1)
+                ->get();
+            if ($HasTodaySign->isEmpty()) {
+                return [];
+            } else {
+                return [
+                    'created_at' => $HasTodaySign->first()->created_at
+                ];
+            }
+        }
         $SignLoges = SignLogModel::where('user_id', $user_id)
+            ->where('created_at', '>=', $floor_date)
             ->limit(7)
             ->orderBy('id', 'DESC')
             ->select(['created_at'])
             ->get();
-        $sign_list = $SignLoges->toArray();
-        if (count($sign_list) >0){
-            $first_time = $sign_list[0];
-            $current_time = $first_time['created_at'];
-            $time = strtotime($current_time);
-            $str_time = date('Y-m-d', $time);
-            $yesterday = date("Y-m-d", time() - 60 * 60 * 24);
-            if ($str_time !== date('Y-m-d') && $str_time !== $yesterday) {
-                return [];
-            }
-        }
-        $is_lawful = 1;
-        
-        foreach($sign_list as $key=>$sign){
-            $current_time = $sign['created_at'];
-            $current_time = strtotime($current_time);
-            $current_time = date('Y-m-d', $current_time);
-            $current_time = strtotime($current_time);
-            // 合法时间
-            // 第一个
-            if (!isset($pre_time)){
-                $pre_time = $current_time;
-            } else {
-                // 往后的
-                if ($current_time !== ($pre_time - 24 * 60 * 60)) {
-                    $is_lawful = 0;
+        if ($SignLoges->isNotEmpty()) {
+            $return_arr = [];
+            $pre_date = null;
+            foreach($SignLoges as $SingLog) {
+                $current_date = strtotime(date('Y-m-d', $SingLog->created_at->timestamp));
+                if ($pre_date === null) {
+                    $pre_date = $current_date + 24 * 60 * 60;
+                } 
+                if($pre_date && ($pre_date - 24 * 60 * 60) === $current_date) {
+                    $return_arr[] = ['created_at'=> date('Y-m-d H:i:s', $current_date)];
+                    $pre_date = $current_date;
+                } else {
+                    return $return_arr;
                 }
             }
-            if ($is_lawful === 0) {
-                unset($sign_list[$key]);
-            }
+        } else {
+            return [];
         }
-        $sign_list = array_column($sign_list, 'created_at');
-        $sign_list = array_reverse($sign_list);
-        return $sign_list;
+
     }
 }

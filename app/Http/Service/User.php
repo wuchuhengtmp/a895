@@ -144,7 +144,7 @@ class User extends Base
             ->where('user_id', $user_id)
             ->limit(1)
             ->get();
-        $LastLog = (new CreditLogModel())->where('user_id', $this->user()->id)
+        $LastLog = (new SignLogModel())->where('user_id', $this->user()->id)
             ->orderBy('id', 'desc')
             ->first();
         if ($LastLog && date('Y-m-d', $LastLog->created_at->timestamp) == date('Y-m-d')) {
