@@ -105,8 +105,10 @@ class User extends Base
         $sign_days = 0;
         if ($SingLog->isNotEmpty()) {
             $sign_list = (new CreditLogic())->getSignDaysByUserId($user_id);
-            foreach($credit_list as $key => &$credit) {
-                $credit['is_sign'] = $key < count($sign_list) ? 1 : 0;
+            if ($sign_list) {
+                foreach($credit_list as $key => &$credit) {
+                    $credit['is_sign'] = $key < count($sign_list) ? 1 : 0;
+                }
             }
         }
         // 当天签到

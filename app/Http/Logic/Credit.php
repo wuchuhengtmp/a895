@@ -34,8 +34,6 @@ class Credit
             }
         }
         $SignLoges = SignLogModel::where('user_id', $user_id)
-            ->where('created_at', '>=', $floor_date)
-            ->limit(7)
             ->orderBy('id', 'DESC')
             ->select(['created_at'])
             ->get();
@@ -51,9 +49,15 @@ class Credit
                     $return_arr[] = ['created_at'=> date('Y-m-d H:i:s', $current_date)];
                     $pre_date = $current_date;
                 } else {
-                    return $return_arr;
+                    break;
                 }
             }
+            if (count($return_arr) % 7 !== 0 ) {
+                $sign_len = count($return_arr) % 7;
+            } else {
+                $sign_len = 7;
+            }
+            return array_slice($return_arr, 0, $sign_len);
         } else {
             return [];
         }
