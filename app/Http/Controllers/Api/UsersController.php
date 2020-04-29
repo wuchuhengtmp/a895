@@ -11,7 +11,16 @@ use App\Http\Validate\{
 use App\Model\{
     Address as AddressModel,
     User as UserModel,
-    Share
+    Share,
+    CaseComments,
+    CaseLikes,
+    CaseOrder,
+    CreditLog,
+    SignLog,
+    FavoriteCase,
+    GoodsComment,
+    Order,
+    UserEvaluate
 };
 use App\Http\Validate\{
     CheckUserExists,
@@ -231,6 +240,37 @@ class UsersController extends Controller
             throw new BaseException([
                 'msg' => '验证码不正确'
             ]);
+        }
+        // 微信合并已有的账号
+        $PhoneUser = User::where('phone', $validate['phone'])->first();
+        if ($this->user()->openid && $PhoneUser && $PhoneUser->id !== $this->user()->id) {
+            DB::beginTransaction();
+            try{
+                CaseComments::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                CaseLikes::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                CaseOrder::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                SignLog::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                CreditLog::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                favoritecase::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                GoodsComment::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                Order::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                Share::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                UserEvaluate::where('user_id', $PhoneUser->id)
+                    ->update(['user_id' => $this->user()->id]);
+                $PhoneUser->destroy($PhoneUser->id);
+                DB::commit();
+            } catch(\Exceptions  $E) {
+                DB::rollBack();
+            }
         }
         $User = User::where('id', $this->user()->id)->first();
         $User->phone = $validate['phone'];
