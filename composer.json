@@ -12,6 +12,7 @@
         "caouecs/laravel-lang": "~4.0",
         "dingo/api": "^2.4",
         "encore/laravel-admin": "^1.7",
+        "endroid/qr-code": "^3.7",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^6.5",
         "jxlwqq/simditor": "^1.0",

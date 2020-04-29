@@ -25,7 +25,9 @@ use App\Http\Service\{
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use App\Exceptions\Api\Base as BaseException;
+use Endroid\QrCode\QrCode;
 use App\Model\User;
+use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
@@ -263,6 +265,51 @@ class UsersController extends Controller
             'my_credites'  => User::where('id', $this->user()->id)->first()->credit,
             'list'         => $share_users
         ]); 
+    }
+
+    public function qrShow()
+    {
+        $Me = $this->user();
+        $Disk = Storage::disk('admin');
+        if ($Me->qr && $Disk->has($Me->qr))  {
+            $qr = $Me->qr;
+        } else {
+            $qr = 'images/' . microtime(true) . 'png';
+            $qrCode = new QrCode(env('APP_SHARE_URL') . '?invite=' . $this->user()->id);
+            Storage::disk('admin')->put($qr, $qrCode->writeString());
+            $Me->qr = $qr;
+            $Me->save();
+        }
+        
+        return $this->responseSuccessData([
+            'qr' => $Disk->url($Me->qr),
+            'nickname' => $Me->nickname,
+            'avatar'   => $Disk->url($Me->avatar),
+            'invite'   => $Me->id
+        ]);
+    }
+
+    public function teamShow(UserModel $UserModel)
+    {
+        $return_arr = [
+            'list'     => [],
+            'lastpage' => 1,
+            'total'    => 0
+        ];
+        $Teams = $UserModel->where('invite', $this->user()->id)->paginate(10);
+        if ($Teams->isNotEmpty()) {
+            foreach($Teams->items() as $Item) {
+                $tmp = [];
+                $tmp['nickname'] = $Item->nickname;
+                $tmp['avatar'] = Storage::disk('admin')->url($Item->avatar);
+                $tmp['created_at'] = $Item->created_at->toDateString();
+                $tmp['invite'] = $this->user()->id;
+                $return_arr['list'][] = $tmp;
+            }
+            $return_arr['lastpage'] = $Teams->lastPage();
+            $return_arr['total'] = $Teams->total();
+        }
+        return $this->responseSuccessData($return_arr);
     }
 }
 

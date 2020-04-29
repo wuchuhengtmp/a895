@@ -78,7 +78,7 @@ $api->version('v1', [
         $api->post('cases/orders/{id}/patch_comment', 'CaseOrderController@saveComment');
         $api->get('cases/orders', 'CaseOrderController@index');
         $api->post('del_cases/orders/{id}', 'CaseOrderController@destroy');
-        $api->post('cases/orders/{id}/refund', 'CaseOrderController@refundStore');
+        $api->post('cases/{id}/refund', 'CaseOrderController@refundStore');
 
         $api->get('signes', 'SignesController@index');
         $api->post('signes', 'SignesController@store') ;
@@ -129,6 +129,9 @@ $api->version('v1', [
         $api->get('me/address/default', 'UsersController@showDefefaultAddress');
 
         $api->get('share', 'UsersController@share');
+
+        $api->get('qr', 'UsersController@qrShow');
+        $api->get('teams', 'UsersController@teamShow');
     });
 
     $api->get('cases/{id}/comments', 'CasesController@contentIndex');
