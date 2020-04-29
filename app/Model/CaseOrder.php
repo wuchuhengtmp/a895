@@ -112,5 +112,28 @@ class CaseOrder extends Model
     {
         return $this->hasOne(CaseOrderComment::class, 'order_id', 'id');
     }
+
+    /**
+     * 装修订单反佣
+     *
+     */
+    public function level1CreditBackByOrderId($order_id)
+    {
+        $Order = self::where('id', $order_id)->first();
+        if (!$Order->user->invite) return ;
+        if (!$ParentUser = User::where('id', $Order->user->invite)->first()) return;
+        $level1_credit = get_config('LEVEL1_CREDIT');
+        if ($Order->status == 1) {
+            $credit = $level1_credit * $Order->prepay_price;
+            $CreditLog = new CreditLog();
+            $CreditLog->title = '【案例订单反佣】-下级用户' . $Order->user->nickname . '预付款反佣';
+            $CreditLog->total = $level1_credit;
+            $CreditLog->status = 1;
+            $CreditLog->user_id = $ParentUser->id;
+            $CreditLog->save();
+            $ParentUser->credit += $level1_credit;
+            $ParentUser->save();
+        }
+    }
 }
 

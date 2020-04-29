@@ -43,11 +43,9 @@ class ConfigController extends Controller
         $form->text('CUSTOMER_URL', __('客服'))->default(get_config('CUSTOMER_URL'));
         $tab->add('阿里客服', $form);
 
-        /* $form = new Widgets\Form(); */
-        /* $form->method('post'); */
-        /* $form->image('DEFAULT_AVATOR', __('DEFAULT_AVATOR'))->move('public/upload/image1/'); */
-        /* $tab->add('用户配置', $form); */
-
+        $form = $this->formTrait();
+        $form->text('LEVEL1_CREDIT', __('一级积分反佣'))->default(get_config('LEVEL1_CREDIT'));
+        $tab->add('一级积分反佣(%)', $form);
 
         $content->row($tab);
 

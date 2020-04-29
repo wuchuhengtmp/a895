@@ -59,6 +59,8 @@ class PayController extends Controller
             $CaseOrder->status = 100;
             $CaseOrder->save();
             Log::info($message);
+            // 一级预付款反佣
+            $CaseOrder->level1CreditBackByOrderId($CaseOrder->id);
             return true;
         });
 
