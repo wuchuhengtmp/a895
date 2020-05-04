@@ -80,7 +80,7 @@ class MeCredit extends Base
      */
     public function meCreditList(int $user_id)
     {
-        $List= CreditLogModel::select('title','total','status')->where('user_id',$user_id)->orderBy('id','desc')
+        $List= CreditLogModel::select('title','total','status', 'created_at')->where('user_id',$user_id)->orderBy('id','desc')
             ->paginate(10);
         return [
             'list'     => $List->items(),
